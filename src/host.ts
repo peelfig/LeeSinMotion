@@ -431,6 +431,30 @@
      * @param actKey                - contains the prop and key indices 
      * @returns {object}            - value change, duration, cubic bezier easing curve, delay from the playhead
      */
+    function getSingleKeySpec() {
+        try {
+            if (!setComp()) return null;
+            let props = thisComp.selectedProperties;
+            for (let i = 0; i < props.length; i++) {
+                let prop = props[i];
+                if (!prop.canVaryOverTime) continue;
+
+                let selKeys = prop.selectedKeys;
+                if (selKeys.length === 1) {
+                    let layer = prop.propertyGroup(prop.propertyDepth);
+                    let keyIndex = selKeys[0];
+                    let keyTime = prop.keyTime(keyIndex);
+                    return {
+                        layerName: layer.name,
+                        propName: prop.name,
+                        time: keyTime
+                    };
+                }
+            }
+            return null;
+        } catch (e) { return null; }
+    }
+
     function getPropSpec(actKey: { prop: Property, keys: number[] }) {
         const prop = actKey.prop;
         const keys = actKey.keys;
@@ -708,6 +732,10 @@
         btn_getSpec.text = "Get specs from selected keys";
         btn_getSpec.alignment = ["fill", "top"];
 
+        var btn_getSingleSpec = myPanel.add("button", undefined, undefined, { name: "btn_getSingleSpec" });
+        btn_getSingleSpec.text = "Get single key time";
+        btn_getSingleSpec.alignment = ["fill", "top"];
+
         // TPANEL1
         // =======
         var tpanel1 = myPanel.add("tabbedpanel", undefined, undefined, { name: "tpanel1" });
@@ -817,6 +845,18 @@
             txt_textField.text = parseSpecText(specJSON)
             txt_mdField.text = parseSpecText(specJSON, true)
             txt_jsonField.text = (JSON.stringify(specJSON, false, 2))
+        }
+
+        btn_getSingleSpec.onClick = function () {
+            let singleKey = getSingleKeySpec();
+            if (singleKey) {
+                let timeStr = `${singleKey.layerName} > ${singleKey.propName}: ${timeToMs(singleKey.time)}`;
+                txt_textField.text = timeStr;
+                txt_mdField.text = `**${singleKey.layerName}** > ${singleKey.propName}: \`${timeToMs(singleKey.time)}\``;
+                txt_jsonField.text = JSON.stringify(singleKey, null, 2);
+            } else {
+                alert("Please select exactly one keyframe.");
+            }
         }
         btn_saveJSON.onClick = function () {
             var specJSON = getKeysSpec()

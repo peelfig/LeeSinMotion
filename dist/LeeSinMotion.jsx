@@ -295,6 +295,33 @@
             alert(e.toString() + "\nError on line: " + e.line.toString());
         }
     }
+    function getSingleKeySpec() {
+        try {
+            if (!setComp())
+                return null;
+            var props = thisComp.selectedProperties;
+            for (var i = 0; i < props.length; i++) {
+                var prop = props[i];
+                if (!prop.canVaryOverTime)
+                    continue;
+                var selKeys = prop.selectedKeys;
+                if (selKeys.length === 1) {
+                    var layer = prop.propertyGroup(prop.propertyDepth);
+                    var keyIndex = selKeys[0];
+                    var keyTime = prop.keyTime(keyIndex);
+                    return {
+                        layerName: layer.name,
+                        propName: prop.name,
+                        time: keyTime
+                    };
+                }
+            }
+            return null;
+        }
+        catch (e) {
+            return null;
+        }
+    }
     function getPropSpec(actKey) {
         var _a;
         var prop = actKey.prop;
@@ -518,6 +545,9 @@
         var btn_getSpec = myPanel.add("button", undefined, undefined, { name: "btn_getSpec" });
         btn_getSpec.text = "Get specs from selected keys";
         btn_getSpec.alignment = ["fill", "top"];
+        var btn_getSingleSpec = myPanel.add("button", undefined, undefined, { name: "btn_getSingleSpec" });
+        btn_getSingleSpec.text = "Get single key time";
+        btn_getSingleSpec.alignment = ["fill", "top"];
         var tpanel1 = myPanel.add("tabbedpanel", undefined, undefined, { name: "tpanel1" });
         tpanel1.alignChildren = "fill";
         tpanel1.margins = 0;
@@ -589,6 +619,18 @@
             txt_textField.text = parseSpecText(specJSON);
             txt_mdField.text = parseSpecText(specJSON, true);
             txt_jsonField.text = (JSON.stringify(specJSON, false, 2));
+        };
+        btn_getSingleSpec.onClick = function () {
+            var singleKey = getSingleKeySpec();
+            if (singleKey) {
+                var timeStr = singleKey.layerName + " > " + singleKey.propName + ": " + timeToMs(singleKey.time);
+                txt_textField.text = timeStr;
+                txt_mdField.text = "**" + singleKey.layerName + "** > " + singleKey.propName + ": `" + timeToMs(singleKey.time) + "`";
+                txt_jsonField.text = JSON.stringify(singleKey, null, 2);
+            }
+            else {
+                alert("Please select exactly one keyframe.");
+            }
         };
         btn_saveJSON.onClick = function () {
             var specJSON = getKeysSpec();
