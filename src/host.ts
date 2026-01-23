@@ -37,7 +37,7 @@
         if (!Folder(configFolder).exists) {         // config folder does not exist
             Folder(configFolder).create();
         }
-        
+
         if (!Folder(easeLibPath).exists) {          // ease library file does not exist
             writeFile(easeLibPath, JSON.stringify(easeLib, replacer, 2))
         } else {                                    // ease library exists so read it
@@ -45,7 +45,7 @@
             file.open('r')
             let data = file.read()
             file.close()
-            
+
             if (data != '') {                       // make sure there is something in the file
                 easeLib = JSON.parse(data)
             }
@@ -113,7 +113,7 @@
         } else {
             var firstKeyTime = 9999999;
             var lastKeyTime = 0;
-            
+
             for (const actKey of selKeys) {
                 const prop = actKey.prop;
                 const keys = actKey.keys;
@@ -134,7 +134,7 @@
      *
      * @return {object[]} - Duration between first and last keys
      */
-    
+
     function getSelKeys() {
         try {
             let selKeyList = [];
@@ -236,7 +236,7 @@
             // Transforms
             dynText('ADBE Transform Group')('ADBE Position').setValue([100, 100]);
 
-        } catch (e) { alert(e.toString() + "\nError on line: " + e.line.toString());}
+        } catch (e) { alert(e.toString() + "\nError on line: " + e.line.toString()); }
 
         // set markers
         setTimeMarkers(dynText, keyRange[0], keyRange[1]);
@@ -370,7 +370,7 @@
             let selKeys = getSelKeys()
             let keyRange = getKeyRange()
 
-            if (selKeys.length < 1) {  
+            if (selKeys.length < 1) {
                 return {
                     compName: 'Select some keyframes',
                     layers: []
@@ -403,7 +403,7 @@
                 }
                 // add each property to the .props array of its layer
                 let propSpec = getPropSpec(actKey)
-                
+
                 // Pseudo effect support
                 let nameOverride = null
                 if (prop.matchName.match(/Control/) != null) {
@@ -431,7 +431,7 @@
      * @param actKey                - contains the prop and key indices 
      * @returns {object}            - value change, duration, cubic bezier easing curve, delay from the playhead
      */
-    function getPropSpec(actKey: {prop: Property, keys: number[]}) {
+    function getPropSpec(actKey: { prop: Property, keys: number[] }) {
         const prop = actKey.prop;
         const keys = actKey.keys;
 
@@ -533,31 +533,31 @@
             let h1 = (markdown) ? '# ' : ''
             let h2 = (markdown) ? '## ' : '\n'
             let propLine = (markdown) ? '\n    ' : '\n  '
-            
+
             let str = ''
-    
+
             str = `${h1}${specObj.compName}`
             str += (markdown) ? '\n\n' : '\n'
             str += (specObj.totalDur) ? `Total duration: ${timeToMs(specObj.totalDur)}\n` : ''
-    
+
             for (let layer of specObj.layers) {
                 str += (markdown) ? `\n` : ``
                 str += `${h2}${layer.name}`
-    
+
                 for (let prop of layer.props) {
                     let val = getVal(prop.value)
                     str += `\n`
-                    str += `- ${ prop.name }`                                                   // name
+                    str += `- ${prop.name}`                                                   // name
                     if (val != ' ') { str += `: ${val}` }                                                   // value change
-                    str += `${propLine}Duration: ${ timeToMs(prop.duration) }`                              // duration
-                    str += `${propLine}${ getCubic(prop.ease) }`                                            // ease
+                    str += `${propLine}Duration: ${timeToMs(prop.duration)}`                              // duration
+                    str += `${propLine}${getCubic(prop.ease)}`                                            // ease
                     if (prop.delay != 0) { str += `${propLine}Delay: ${timeToMs(prop.delay)}` }             // delay
                     str += `\n`
                 }
             }
-    
+
             return str
-        } catch (e) { alert(e.toString() + "\nError on line: " + e.line.toString());}
+        } catch (e) { alert(e.toString() + "\nError on line: " + e.line.toString()); }
     }
 
     /**
@@ -568,15 +568,20 @@
      */
     function getVal(valObj: PropVal) {
         let str = ''
+        let diff = 0
 
         if (valObj.matchName.match(/Opacity/) != null) {
-            str = `${round(valObj.start)} → ${round(valObj.end)}%`
+            diff = round(valObj.end - valObj.start)
+            str = `${round(valObj.start)} → ${round(valObj.end)}% (${diff}%)`
         } else if (valObj.matchName.match(/Scale/) != null) {
-            str = `${round(valObj.start[0])} → ${round(valObj.end[0])}%`
+            diff = round(valObj.end[0] - valObj.start[0])
+            str = `${round(valObj.start[0])} → ${round(valObj.end[0])}% (${diff}%)`
         } else if (valObj.matchName.match(/Position_0|Position_1|Position_2/) != null) {
-            str = `${round(valObj.start)} → ${round(valObj.end)}px`
+            diff = round(valObj.end - valObj.start)
+            str = `${round(valObj.start)} → ${round(valObj.end)}px (${diff})`
         } else if (valObj.matchName.match(/Rotate|Angle/) != null) {
-            str = `${round(valObj.start)} → ${round(valObj.end)}º`
+            diff = round(valObj.end - valObj.start)
+            str = `${round(valObj.start)} → ${round(valObj.end)}º (${diff}º)`
         } else if (valObj.matchName.match(/Color|Shape/) != null) {
             str += `${colorToHex(valObj.start)} → ${colorToHex(valObj.end)}`
         } else {
@@ -586,16 +591,22 @@
         if (!str) {
             str = ''
             if (valObj.start.length > 1) {      // iterate through multi dimension props
+                let diffs = []
                 for (const i in valObj.start) {
                     // if (Object.prototype.hasOwnProperty.call(valObj, start)) {
                     if (!isNaN(i)) {
                         str += `${round(valObj.start[i])} → ${round(valObj.end[i])} | `
+                        diffs.push(round(valObj.end[i] - valObj.start[i]))
                     }
-                    
+
                 }
                 str = str.slice(0, -3)      // remove the last ` :: `
+                if (diffs.length > 0) {
+                    str += " | " + diffs.join(" | ")
+                }
             } else {
-                str = `${round(valObj.start)} → ${round(valObj.end)}`
+                diff = round(valObj.end - valObj.start)
+                str = `${round(valObj.start)} → ${round(valObj.end)} (${diff})`
 
             }
         }
@@ -675,7 +686,7 @@
     }
 
     function buildUI() {
-        let specJSON = getKeysSpec()        
+        let specJSON = getKeysSpec()
         /*
         Code for Import https://scriptui.joonas.me — (Triple click to select):
         {"items":{"item-0":{"id":0,"type":"Dialog","parentId":false,"style":{"enabled":true,"varName":"myPanel","windowType":"Dialog","creationProps":{"su1PanelCoordinates":false,"maximizeButton":false,"minimizeButton":false,"independent":false,"closeButton":true,"borderless":false,"resizeable":true},"text":"Dialog","preferredSize":[240,0],"margins":16,"orientation":"column","spacing":10,"alignChildren":["fill","top"]}},"item-1":{"id":1,"type":"Button","parentId":0,"style":{"enabled":true,"varName":"btn_getSpec","text":"Get specs from selected keys","justify":"center","preferredSize":[0,0],"alignment":"fill","helpTip":""}},"item-4":{"id":4,"type":"EditText","parentId":24,"style":{"enabled":true,"varName":"txt_jsonField","creationProps":{"noecho":false,"readonly":false,"multiline":true,"scrollable":true,"borderless":false,"enterKeySignalsOnChange":false},"softWrap":false,"text":"","justify":"left","preferredSize":[0,200],"alignment":"fill","helpTip":"Event marker name"}},"item-22":{"id":22,"type":"TabbedPanel","parentId":0,"style":{"enabled":true,"varName":null,"preferredSize":[0,0],"margins":0,"alignment":"fill","selection":23}},"item-23":{"id":23,"type":"Tab","parentId":22,"style":{"enabled":true,"varName":null,"text":"Text","orientation":"column","spacing":10,"alignChildren":["left","top"]}},"item-24":{"id":24,"type":"Tab","parentId":22,"style":{"enabled":true,"varName":null,"text":"JSON","orientation":"column","spacing":10,"alignChildren":["left","top"]}},"item-25":{"id":25,"type":"EditText","parentId":23,"style":{"enabled":true,"varName":"txt_textField","creationProps":{"noecho":false,"readonly":false,"multiline":true,"scrollable":true,"borderless":false,"enterKeySignalsOnChange":false},"softWrap":false,"text":"","justify":"left","preferredSize":[0,235],"alignment":"fill","helpTip":"Event marker name"}},"item-26":{"id":26,"type":"Group","parentId":0,"style":{"enabled":true,"varName":null,"preferredSize":[0,0],"margins":0,"orientation":"row","spacing":10,"alignChildren":["left","center"],"alignment":"fill"}},"item-27":{"id":27,"type":"Button","parentId":26,"style":{"enabled":true,"varName":"btn_settings","text":"✱","justify":"right","preferredSize":[40,0],"alignment":null,"helpTip":"Settings"}},"item-28":{"id":28,"type":"Button","parentId":24,"style":{"enabled":true,"varName":"btn_saveJSON","text":"Save to .JSON","justify":"center","preferredSize":[0,0],"alignment":"fill","helpTip":null}},"item-29":{"id":29,"type":"Button","parentId":26,"style":{"enabled":true,"varName":"btn_newCounter","text":"New counter","justify":"left","preferredSize":[0,0],"alignment":null,"helpTip":"Create a time counter layer"}}},"order":[0,1,22,23,25,24,4,28,26,29,27],"settings":{"importJSON":true,"indentSize":false,"cepExport":false,"includeCSSJS":true,"showDialog":true,"functionWrapper":false,"afterEffectsDockable":false,"itemReferenceList":"None"},"activeId":26}
@@ -732,7 +743,7 @@
         // txt_mdField.preferredSize.height = 235;
         txt_mdField.alignment = ["fill", "fill"];
         txt_mdField.text = parseSpecText(specJSON, true)
-        
+
         // TAB3
         // ====
         var tab3 = tpanel1.add("tab", undefined, undefined, { name: "tab3" });
@@ -779,7 +790,7 @@
         btn_help.helpTip = "Guide";
         btn_help.text = "Learn stuff";
         btn_help.justify = "right";
-        
+
         group1.add("staticText", undefined, `v${scriptVersion}`, { name: "btn_help" });
 
 
@@ -809,8 +820,8 @@
         }
         btn_saveJSON.onClick = function () {
             var specJSON = getKeysSpec()
-                // specJSON.spacetimeVersion = scriptVersion;
-                // specJSON.aeVersion = app.version;
+            // specJSON.spacetimeVersion = scriptVersion;
+            // specJSON.aeVersion = app.version;
 
             var outputFile = getUserFile('spec.spacetime.json', 'spacetime:*.spacetime.json;');
 
