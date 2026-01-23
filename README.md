@@ -1,13 +1,9 @@
-<img src="images/LeeSinMotion_logo.png" width="200" alt="LeeSinMotion logo">
+# LeeSin Motion
+Motion specs are a necessary part of the engineering process. It's often difficult and time consuming to deliver the data required to replicate motion on device. With LeeSin Motion you can generate this data along side the reference quicktime, with just one click.
 
-# LeeSinMotion
-Motion specs are a necessary part of the engineering process. It's often difficult and time consuming to deliver the data required to replicate motion on device. With LeeSinMotion you can generate this data along side the reference quicktime, with just one click.
+  [4e4c540d]: https://leesinmotion.pages.dev/ "LeeSin Motion"
 
-  [4e4c540d]: https://google.github.io/inspectorspacetime/ "LeeSinMotion"
-
-> This is not an official Google product. Motion designers at Google just kinda like it a lot. Built by [Adam Plouff][8638464d].
-
-  [8638464d]: http://www.battleaxe.co/ "Battle Axe"
+> This is not an official Google product. Originally built by [Adam Plouff](http://www.battleaxe.co/), enhanced to v3.0 by peelfig.
 
 ---
 ## Installation
@@ -24,9 +20,9 @@ Restart Ae and LeeSinMotion will be available in the Window menu at the top of t
 
 ### CC2018 and older
 1. Close After Effects
-2. Drag the `InspectorSpacetime.jsx` file into Applications > Adobe After Effects [version number] > Scripts > ScriptUI Panels
+2. Drag the `LeeSinMotion.jsx` file into Applications > Adobe After Effects [version number] > Scripts > ScriptUI Panels
 3. Fire up After Effects again
-4. Navigate to the Window menu up top. At the bottom you'll see `InspectorSpacetime.jsx`
+4. Navigate to the Window menu up top. At the bottom you'll see `LeeSinMotion.jsx`
 
 ---
 ## Usage
@@ -41,7 +37,7 @@ Select a pair or several pairs of keyframes and click the giant button. These ke
 
 Selected keyframe pairs are now added to the property list as plain text. Additional keys may be added to the list and the overall duration and delay of each key pair will update.
 
-**Note: Live text is dead–** as of v2.1, the live text panel has been removed because it was a major pain to get useable data out with all those expressions.
+**Note: v3.0 Updates–** Added "Get single key time" feature and full Chinese language support for the landing page.
 
 ### Data output
 <img src="https://google.github.io/inspectorspacetime/images/DataOutput.gif" width="380">

@@ -53,7 +53,7 @@
             };
     })();
     var scriptName = 'LeeSinMotion';
-    var scriptVersion = '2.5';
+    var scriptVersion = '3.0';
     var thisComp, easeLib = {};
     var exp_counter = 'var sTime = marker.key("Start").time; var eTime = marker.key("End").time; var countTime = Math.max(time - sTime, 0); countTime = Math.min(countTime, eTime - sTime); var counter = Math.round(countTime * 1000); var playIcon = (time > sTime && time < eTime) ? "\u25ba " : "\u25a0 "; playIcon + counter + "ms";';
     var configFolder = Folder.userData.toString() + '/BattleAxe/LeeSinMotion/config/';
@@ -653,7 +653,7 @@
             Folder(configFolder).execute();
         };
         btn_help.onClick = function () {
-            visitURL('https://google.github.io/inspectorspacetime/');
+            visitURL('https://leesinmotion.pages.dev/');
         };
     }
     var isKBarRunning = (typeof kbar !== 'undefined');

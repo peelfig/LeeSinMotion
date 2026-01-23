@@ -3,7 +3,7 @@ home: true
 heroVideo: ./video/IST_Example.mp4
 tagline: Generate motion specs from After Effects and become an engineer's best friend
 actionText: Download
-actionLink: https://github.com/google/inspectorspacetime/releases/latest/download/LeeSinMotion.zip
+actionLink: https://github.com/peelfig/LeeSinMotion/releases/latest
 # actionLink: ./download/LeeSinMotion.zip
 usage:
 - img: ./images/Panel.jpg
@@ -16,8 +16,8 @@ usage:
 #   img: ./images/PropPanel2.png
 #   details: Selected keyframe pairs are now added to the property list as plain text. Additional keys may be added to the list and the overall duration and delay of each key pair will update <br /><br /><b>Note- Live text is dead</b> as of v2.1, the live text panel has been removed because it was a major pain to get useable data from all those expressions.
 updates:
-- title: New in v2.5
-  details: Since its initial release in 2017 as one of the first attempts at speccing motion, the ways motion designers work with engineering have matured. LeeSinMotion is now much simpler than previous versions. <br/><br/>The dynamic expressions and spec sidebar are gone and have been replaced with a few different varieties of plain text formatting.  
+- title: New in v3.0
+  details: Since its initial release in 2017 as one of the first attempts at speccing motion, the ways motion designers work with engineering have matured. LeeSin Motion v3.0 introduces new features like "Single Key Time" and an enhanced, modern landing page. <br/><br/>The dynamic expressions and spec sidebar are gone and have been replaced with a few different varieties of plain text formatting.  
 - title: Improvements
   details: <ul><li>Lots of simplicity</li><li>Cubic bezier easing accuracy</li><li>Markdown formatting of text</li><li>Transparent object notation of the spec</li><li>Removed a bunch of unnecessary stuff</li></ul>
 - title: Now supporting
@@ -31,5 +31,5 @@ addons:
 - title: Ease library
   img: ./images/Ease-library.jpg
   details: The system generates easing curves as <a href="https://cubic-bezier.com/#.4,0,.2,1">cubic bezier</a> easing functions. This is a common format, but your team might have developed its own short-hand terminology for these curves. <br/><br/>A <b>Linear</b> curve is a good example of one you might not need numbers for. <br/><br/>To auto-detect reusable curves, click the <code>✱</code> button at the bottom of the panel to open the <code>/config</code> folder. Open the <code>ease-library.json</code> file in a text editor and add new curves in JSON format. <br/><br/> <code>"material standard"&#58 [<br />&#160 0.4,<br />&#160 0,<br />&#160 0.2,<br />&#160 1<br />],</code>
-footer: Built by <a href="http://battleaxe.co">Adam Plouff</a> and your friends at <a href="https://wearesumux.appspot.com/">Google motion design</a>
+footer: Originally built by <a href="http://battleaxe.co">Adam Plouff</a>, enhanced to v3.0 by <a href="https://github.com/peelfig">peelfig</a>.
 ---
