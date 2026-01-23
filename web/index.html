@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeeSinMotion - The Ultimate Motion Spec Tool for After Effects</title>
+    <meta name="description" content="Generate precise motion specs from After Effects keyframes with one click. Deliver data to engineering seamlessly.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="assets/logo.png">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <a href="#" class="logo">
+                <img src="assets/logo.png" alt="LeeSinMotion Logo">
+                <span>LeeSinMotion</span>
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How it works</a>
+                <a href="https://github.com/peelfig/LeeSinMotion" target="_blank" class="github-link">GitHub</a>
+                <a href="https://github.com/peelfig/LeeSinMotion/archive/refs/heads/main.zip" class="btn btn-primary btn-sm">Download v2.5</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container hero-content">
+            <div class="hero-text">
+                <h1 class="fade-in-up">Motion Specs,<br>Reimagined.</h1>
+                <p class="subtitle fade-in-up delay-1">Bridge the gap between Design and Engineering. Export precise specifictions from After Effects keyframes in milliseconds.</p>
+                <div class="cta-group fade-in-up delay-2">
+                    <a href="https://github.com/peelfig/LeeSinMotion/releases" class="btn btn-primary">Get the Plugin</a>
+                    <a href="#features" class="btn btn-outline">Learn More</a>
+                </div>
+            </div>
+            <div class="hero-visual fade-in-up delay-3">
+                <div class="glass-card mockup">
+                    <div class="mockup-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <div class="mockup-body">
+                        <div class="code-block">
+                            <span class="comment">// Selected Keyframes Output</span>
+                            <span class="keyword">Layer:</span> <span class="string">Button_bg</span>
+                            <span class="keyword">Property:</span> <span class="string">Scale</span>
+                            <span class="value">100 → 120%</span> <span class="dim">(+20%)</span>
+                            <span class="keyword">Duration:</span> <span class="string">300ms</span>
+                            <span class="keyword">Ease:</span> <span class="function">cubic-bezier</span>(0.25, 0.1, 0.25, 1.0)
+                        </div>
+                        <div class="graph-visual">
+                            <svg viewBox="0 0 200 60" class="curve-svg">
+                                <path d="M0,60 C50,60 100,0 200,0" stroke="#00f3ff" stroke-width="3" fill="none" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-bg-glow"></div>
+    </header>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Why LeeSinMotion?</h2>
+            <div class="grid">
+                <div class="feature-card">
+                    <div class="icon">⚡️</div>
+                    <h3>Instant Specs</h3>
+                    <p>Select any two keyframes and get instant duration, delay, and value changes. No more manual calculations.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🎯</div>
+                    <h3>Precision Data</h3>
+                    <p>Exports values, delta differences, and standard cubic-bezier curves ready for CSS or native development.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">⏱</div>
+                    <h3>Time Awareness</h3>
+                    <p>New "Single Key Time" feature allows you to pinpoint exactly when an animation event occurs in the timeline.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">📝</div>
+                    <h3>Format Flexibility</h3>
+                    <p>Copy as Markdown for documentation, JSON for code, or plain text for quick Slack messages.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <div class="split-layout">
+                <div class="text-content">
+                    <h2>Seamless Workflow</h2>
+                    <ul class="steps">
+                        <li>
+                            <span class="step-num">01</span>
+                            <div>
+                                <h3>Select Keyframes</h3>
+                                <p>Highlight the start and end keyframes of any animation in your timeline.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="step-num">02</span>
+                            <div>
+                                <h3>Click to Capture</h3>
+                                <p>Hit the "Get Specs" button. LeeSinMotion parses the data instantly.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="step-num">03</span>
+                            <div>
+                                <h3>Share with Eng</h3>
+                                <p>Paste the generated specs directly into Jira, Notion, or your handoff documentation.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Abstract visual representation -->
+                <div class="visual-content">
+                    <div class="abstract-shape shape-1"></div>
+                    <div class="abstract-shape shape-2"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="assets/logo.png" alt="Logo" width="30">
+                    <span>LeeSinMotion</span>
+                </div>
+                <div class="copyright">
+                    © 2026 LeeSinMotion Project. Open Source under Apache 2.0.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
