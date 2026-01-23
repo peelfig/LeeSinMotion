@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LeeSinMotion - The Ultimate Motion Spec Tool for After Effects</title>
+    <title>LeeSin Motion - The Ultimate Motion Spec Tool for After Effects</title>
     <meta name="description"
         content="Generate precise motion specs from After Effects keyframes with one click. Deliver data to engineering seamlessly.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,11 +24,22 @@
                 <span>LeeSin Motion</span>
             </a>
             <div class="nav-links">
-                <a href="#features">Features</a>
-                <a href="#how-it-works">How it works</a>
-                <a href="https://github.com/peelfig/LeeSinMotion" target="_blank" class="github-link">GitHub</a>
+                <a href="#features" data-i18n="nav-features">Features</a>
+                <a href="#how-it-works" data-i18n="nav-how">How it works</a>
+                <a href="https://github.com/peelfig/LeeSinMotion" target="_blank" data-i18n="nav-github">GitHub</a>
                 <a href="https://github.com/peelfig/LeeSinMotion/archive/refs/heads/main.zip"
-                    class="btn btn-primary btn-sm">Download v2.5</a>
+                    class="btn btn-primary btn-sm" data-i18n="nav-download">Download v2.5</a>
+                <button class="lang-switch" id="langToggle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path
+                            d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                        </path>
+                    </svg>
+                    <span id="langText">中文</span>
+                </button>
             </div>
         </div>
     </nav>
@@ -36,13 +47,13 @@
     <header class="hero">
         <div class="container hero-content">
             <div class="hero-text">
-                <h1 class="fade-in-up">Motion Specs,<br>Reimagined.</h1>
-                <p class="subtitle fade-in-up delay-1">Bridge the gap between Design and Engineering. Export precise
-                    specifictions from After Effects keyframes in milliseconds.</p>
+                <h1 class="fade-in-up" data-i18n="hero-title">Motion Specs,<br>Reimagined.</h1>
+                <p class="subtitle fade-in-up delay-1" data-i18n="hero-sub">Bridge the gap between Design and
+                    Engineering. Export precise specifictions from After Effects keyframes in milliseconds.</p>
                 <div class="cta-group fade-in-up delay-2">
-                    <a href="https://github.com/peelfig/LeeSinMotion/releases" class="btn btn-primary">Get the
-                        Plugin</a>
-                    <a href="#features" class="btn btn-outline">Learn More</a>
+                    <a href="https://github.com/peelfig/LeeSinMotion/releases" class="btn btn-primary"
+                        data-i18n="btn-get">Get the Plugin</a>
+                    <a href="#features" class="btn btn-outline" data-i18n="btn-learn">Learn More</a>
                 </div>
             </div>
             <div class="hero-visual fade-in-up delay-3">
@@ -54,13 +65,16 @@
                     </div>
                     <div class="mockup-body">
                         <div class="code-block">
-                            <span class="comment">// Selected Keyframes Output</span>
-                            <span class="keyword">Layer:</span> <span class="string">Button_bg</span>
-                            <span class="keyword">Property:</span> <span class="string">Scale</span>
-                            <span class="value">100 → 120%</span> <span class="dim">(+20%)</span>
-                            <span class="keyword">Duration:</span> <span class="string">300ms</span>
-                            <span class="keyword">Ease:</span> <span class="function">cubic-bezier</span>(0.25, 0.1,
-                            0.25, 1.0)
+                            <span class="comment" data-i18n="mockup-comment">// Selected Keyframes Output</span>
+                            <div><span class="keyword" data-i18n="mockup-layer">Layer:</span> <span
+                                    class="string">Button_bg</span></div>
+                            <div><span class="keyword" data-i18n="mockup-prop">Property:</span> <span
+                                    class="string">Scale</span></div>
+                            <div class="value">100 → 120% <span class="dim">(+20%)</span></div>
+                            <div><span class="keyword" data-i18n="mockup-dur">Duration:</span> <span
+                                    class="string">300ms</span></div>
+                            <div><span class="keyword" data-i18n="mockup-ease">Ease:</span> <span
+                                    class="function">cubic-bezier</span>(0.25, 0.1, 0.25, 1.0)</div>
                         </div>
                         <div class="graph-visual">
                             <svg viewBox="0 0 200 60" class="curve-svg">
@@ -76,30 +90,31 @@
 
     <section id="features" class="features">
         <div class="container">
-            <h2 class="section-title">Why LeeSinMotion?</h2>
+            <h2 class="section-title" data-i18n="features-title">Why LeeSin Motion?</h2>
             <div class="grid">
                 <div class="feature-card">
                     <div class="icon">⚡️</div>
-                    <h3>Instant Specs</h3>
-                    <p>Select any two keyframes and get instant duration, delay, and value changes. No more manual
-                        calculations.</p>
+                    <h3 data-i18n="f1-t">Instant Specs</h3>
+                    <p data-i18n="f1-d">Select any two keyframes and get instant duration, delay, and value changes. No
+                        more manual calculations.</p>
                 </div>
                 <div class="feature-card">
                     <div class="icon">🎯</div>
-                    <h3>Precision Data</h3>
-                    <p>Exports values, delta differences, and standard cubic-bezier curves ready for CSS or native
-                        development.</p>
+                    <h3 data-i18n="f2-t">Precision Data</h3>
+                    <p data-i18n="f2-d">Exports values, delta differences, and standard cubic-bezier curves ready for
+                        CSS or native development.</p>
                 </div>
                 <div class="feature-card">
                     <div class="icon">⏱</div>
-                    <h3>Time Awareness</h3>
-                    <p>New "Single Key Time" feature allows you to pinpoint exactly when an animation event occurs in
-                        the timeline.</p>
+                    <h3 data-i18n="f3-t">Time Awareness</h3>
+                    <p data-i18n="f3-d">New "Single Key Time" feature allows you to pinpoint exactly when an animation
+                        event occurs in the timeline.</p>
                 </div>
                 <div class="feature-card">
                     <div class="icon">📝</div>
-                    <h3>Format Flexibility</h3>
-                    <p>Copy as Markdown for documentation, JSON for code, or plain text for quick Slack messages.</p>
+                    <h3 data-i18n="f4-t">Format Flexibility</h3>
+                    <p data-i18n="f4-d">Copy as Markdown for documentation, JSON for code, or plain text for quick Slack
+                        messages.</p>
                 </div>
             </div>
         </div>
@@ -109,28 +124,30 @@
         <div class="container">
             <div class="split-layout">
                 <div class="text-content">
-                    <h2>Seamless Workflow</h2>
+                    <h2 data-i18n="how-title">Seamless Workflow</h2>
                     <ul class="steps">
                         <li>
                             <span class="step-num">01</span>
                             <div>
-                                <h3>Select Keyframes</h3>
-                                <p>Highlight the start and end keyframes of any animation in your timeline.</p>
+                                <h3 data-i18n="s1-t">Select Keyframes</h3>
+                                <p data-i18n="s1-d">Highlight the start and end keyframes of any animation in your
+                                    timeline.</p>
                             </div>
                         </li>
                         <li>
                             <span class="step-num">02</span>
                             <div>
-                                <h3>Click to Capture</h3>
-                                <p>Hit the "Get Specs" button. LeeSinMotion parses the data instantly.</p>
+                                <h3 data-i18n="s2-t">Click to Capture</h3>
+                                <p data-i18n="s2-d">Hit the "Get Specs" button. LeeSinMotion parses the data instantly.
+                                </p>
                             </div>
                         </li>
                         <li>
                             <span class="step-num">03</span>
                             <div>
-                                <h3>Share with Eng</h3>
-                                <p>Paste the generated specs directly into Jira, Notion, or your handoff documentation.
-                                </p>
+                                <h3 data-i18n="s3-t">Share with Eng</h3>
+                                <p data-i18n="s3-d">Paste the generated specs directly into Jira, Notion, or your
+                                    handoff documentation.</p>
                             </div>
                         </li>
                     </ul>
@@ -150,13 +167,99 @@
                 <div class="footer-logo">
                     <span>LeeSin Motion</span>
                 </div>
-                <div class="copyright">
-                    © 2026 LeeSinMotion Project. Open Source under Apache 2.0.
+                <div class="copyright" data-i18n="copyright">
+                    © 2026 LeeSin Motion Project. Open Source under Apache 2.0.
                 </div>
             </div>
         </div>
     </footer>
 
+    <script>
+        const translations = {
+            en: {
+                "nav-features": "Features",
+                "nav-how": "How it works",
+                "nav-github": "GitHub",
+                "nav-download": "Download v2.5",
+                "hero-title": "Motion Specs,<br>Reimagined.",
+                "hero-sub": "Bridge the gap between Design and Engineering. Export precise specifictions from After Effects keyframes in milliseconds.",
+                "btn-get": "Get the Plugin",
+                "btn-learn": "Learn More",
+                "mockup-comment": "// Selected Keyframes Output",
+                "mockup-layer": "Layer:",
+                "mockup-prop": "Property:",
+                "mockup-dur": "Duration:",
+                "mockup-ease": "Ease:",
+                "features-title": "Why LeeSin Motion?",
+                "f1-t": "Instant Specs",
+                "f1-d": "Select any two keyframes and get instant duration, delay, and value changes. No more manual calculations.",
+                "f2-t": "Precision Data",
+                "f2-d": "Exports values, delta differences, and standard cubic-bezier curves ready for CSS or native development.",
+                "f3-t": "Time Awareness",
+                "f3-d": "New \"Single Key Time\" feature allows you to pinpoint exactly when an animation event occurs in the timeline.",
+                "f4-t": "Format Flexibility",
+                "f4-d": "Copy as Markdown for documentation, JSON for code, or plain text for quick Slack messages.",
+                "how-title": "Seamless Workflow",
+                "s1-t": "Select Keyframes",
+                "s1-d": "Highlight the start and end keyframes of any animation in your timeline.",
+                "s2-t": "Click to Capture",
+                "s2-d": "Hit the \"Get Specs\" button. LeeSinMotion parses the data instantly.",
+                "s3-t": "Share with Eng",
+                "s3-d": "Paste the generated specs directly into Jira, Notion, or your handoff documentation.",
+                "copyright": "© 2026 LeeSin Motion Project. Open Source under Apache 2.0.",
+                "lang-toggle": "中文"
+            },
+            zh: {
+                "nav-features": "功能特性",
+                "nav-how": "工作流程",
+                "nav-github": "源码",
+                "nav-download": "下载 v2.5",
+                "hero-title": "动效标注，<br>重新定义。",
+                "hero-sub": "打破设计与工程之间的隔阂。毫秒间从 After Effects 关键帧导出精确规格。",
+                "btn-get": "获取插件",
+                "btn-learn": "了解更多",
+                "mockup-comment": "// 选中关键帧输出",
+                "mockup-layer": "图层:",
+                "mockup-prop": "属性:",
+                "mockup-dur": "时长:",
+                "mockup-ease": "缓动:",
+                "features-title": "为什么选择 LeeSin Motion?",
+                "f1-t": "即时标注",
+                "f1-d": "选中任意两个关键帧，即刻获取时长、延迟和数值变化。告别繁琐的手动计算。",
+                "f2-t": "精准数据",
+                "f2-d": "导出数值、差值变化以及标准的贝塞尔曲线，完美适配 CSS 或原生开发。",
+                "f3-t": "时间感知",
+                "f3-d": "全新的“单帧时间”功能，让您精确锁定动画事件在时间轴上的发生瞬间。",
+                "f4-t": "格式灵活",
+                "f4-d": "支持导出为 Markdown（文档）、JSON（代码）或纯文本（即时消息）。",
+                "how-title": "无缝工作流",
+                "s1-t": "选中关键帧",
+                "s1-d": "在时间轴中高亮显示任何动画的起始和结束关键帧。",
+                "s2-t": "点按抓取",
+                "s2-d": "点击“获取标注”按钮。LeeSinMotion 瞬间解析数据。",
+                "s3-t": "交付开发",
+                "s3-d": "将生成的标注直接粘贴到 Jira、Notion 或您的交付文档中。",
+                "copyright": "© 2026 LeeSin Motion 项目。基于 Apache 2.0 协议开源。",
+                "lang-toggle": "EN"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'zh' : 'en';
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.innerHTML = translations[currentLang][key];
+                }
+            });
+            document.getElementById('langText').innerText = translations[currentLang]['lang-toggle'];
+            document.documentElement.lang = currentLang;
+        }
+
+        document.getElementById('langToggle').addEventListener('click', toggleLang);
+    </script>
 </body>
 
 </html>

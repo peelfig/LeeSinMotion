@@ -69,7 +69,33 @@ body {
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 1.5rem;
+}
+
+.lang-switch {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-secondary);
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+}
+
+.lang-switch:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.lang-switch svg {
+    width: 16px;
+    height: 16px;
 }
 
 .nav-links a {
@@ -410,7 +436,9 @@ body {
     align-items: center;
     gap: 0.5rem;
     color: var(--text-primary);
-    font-weight: 600;
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: -0.5px;
 }
 
 /* Animations */
@@ -459,6 +487,11 @@ body {
 
 /* Mobile */
 @media (max-width: 768px) {
+    .navbar .container {
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+    }
 
     .hero-content,
     .split-layout {
@@ -475,8 +508,6 @@ body {
     }
 
     .nav-links {
-        display: none;
+        gap: 1rem;
     }
-
-    /* Simplified for MVP */
 }
