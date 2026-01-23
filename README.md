@@ -1,4 +1,4 @@
-<img src="https://google.github.io/inspectorspacetime/images/Inspector_Spacetime_logo.png" width="100" alt="Inspector Spacetime logo">
+<img src="images/LeeSinMotion_logo.png" width="200" alt="LeeSinMotion logo">
 
 # LeeSinMotion
 Motion specs are a necessary part of the engineering process. It's often difficult and time consuming to deliver the data required to replicate motion on device. With LeeSinMotion you can generate this data along side the reference quicktime, with just one click.
