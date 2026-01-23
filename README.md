@@ -1,9 +1,9 @@
 <img src="https://google.github.io/inspectorspacetime/images/Inspector_Spacetime_logo.png" width="100" alt="Inspector Spacetime logo">
 
-# [Inspector Spacetime][4e4c540d]
-Motion specs are a necessary part of the engineering process. It's often difficult and time consuming to deliver the data required to replicate motion on device. With Inspector Spacetime you can generate this data along side the reference quicktime, with just one click.
+# LeeSinMotion
+Motion specs are a necessary part of the engineering process. It's often difficult and time consuming to deliver the data required to replicate motion on device. With LeeSinMotion you can generate this data along side the reference quicktime, with just one click.
 
-  [4e4c540d]: https://google.github.io/inspectorspacetime/ "Inspector Spacetime"
+  [4e4c540d]: https://google.github.io/inspectorspacetime/ "LeeSinMotion"
 
 > This is not an official Google product. Motion designers at Google just kinda like it a lot. Built by [Adam Plouff][8638464d].
 
@@ -14,11 +14,12 @@ Motion specs are a necessary part of the engineering process. It's often difficu
 
 
 ### CC2019+
-In newer versions of After Effects, it is possible to install Inspector Spacetime and other scripts without digging through your hard drive.
+In newer versions of After Effects, it is possible to install LeeSinMotion and other scripts without digging through your hard drive.
 
 `File > Scripts > Install Script UI Panel…`
 
-Restart Ae and InspectorSpacetime will be available in the Window menu at the top of the screen. Scroll down to find the installed scripts
+Restart Ae and LeeSinMotion will be available in the Window menu at the top of the screen. Scroll down to find the installed scripts
+
 
 
 ### CC2018 and older

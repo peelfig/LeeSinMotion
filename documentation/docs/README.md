@@ -3,8 +3,8 @@ home: true
 heroVideo: ./video/IST_Example.mp4
 tagline: Generate motion specs from After Effects and become an engineer's best friend
 actionText: Download
-actionLink: https://github.com/google/inspectorspacetime/releases/latest/download/InspectorSpacetime.zip
-# actionLink: ./download/InspectorSpacetime.zip
+actionLink: https://github.com/google/inspectorspacetime/releases/latest/download/LeeSinMotion.zip
+# actionLink: ./download/LeeSinMotion.zip
 usage:
 - img: ./images/Panel.jpg
 - title: Usage
@@ -17,7 +17,7 @@ usage:
 #   details: Selected keyframe pairs are now added to the property list as plain text. Additional keys may be added to the list and the overall duration and delay of each key pair will update <br /><br /><b>Note- Live text is dead</b> as of v2.1, the live text panel has been removed because it was a major pain to get useable data from all those expressions.
 updates:
 - title: New in v2.5
-  details: Since its initial release in 2017 as one of the first attempts at speccing motion, the ways motion designers work with engineering have matured. Inspector Spacetime is now much simpler than previous versions. <br/><br/>The dynamic expressions and spec sidebar are gone and have been replaced with a few different varieties of plain text formatting.  
+  details: Since its initial release in 2017 as one of the first attempts at speccing motion, the ways motion designers work with engineering have matured. LeeSinMotion is now much simpler than previous versions. <br/><br/>The dynamic expressions and spec sidebar are gone and have been replaced with a few different varieties of plain text formatting.  
 - title: Improvements
   details: <ul><li>Lots of simplicity</li><li>Cubic bezier easing accuracy</li><li>Markdown formatting of text</li><li>Transparent object notation of the spec</li><li>Removed a bunch of unnecessary stuff</li></ul>
 - title: Now supporting
