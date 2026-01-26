@@ -1,84 +1,55 @@
-# LeeSin Motion
-Motion specs are a necessary part of the engineering process. It's often difficult and time consuming to deliver the data required to replicate motion on device. With LeeSin Motion you can generate this data along side the reference quicktime, with just one click.
+# LeeSin Motion - 动效标注大杀器
 
-  [4e4c540d]: https://leesinmotion.pages.dev/ "LeeSin Motion"
+动效标注是开发过程中必不可少的一环，但手动整理关键帧数据往往繁琐且耗时。**LeeSin Motion** 彻底重塑了这一流程，让设计师只需一键即可生成精准的动效参数，实现设计与工程的完美对接。
 
-> This is not an official Google product. Originally built by [Adam Plouff](http://www.battleaxe.co/), enhanced to v3.0 by peelfig.
-
----
-## Installation
-
-
-### CC2019+
-In newer versions of After Effects, it is possible to install LeeSinMotion and other scripts without digging through your hard drive.
-
-`File > Scripts > Install Script UI Panel…`
-
-Restart Ae and LeeSinMotion will be available in the Window menu at the top of the screen. Scroll down to find the installed scripts
-
-
-
-### CC2018 and older
-1. Close After Effects
-2. Drag the `LeeSinMotion.jsx` file into Applications > Adobe After Effects [version number] > Scripts > ScriptUI Panels
-3. Fire up After Effects again
-4. Navigate to the Window menu up top. At the bottom you'll see `LeeSinMotion.jsx`
+[官网地址](https://leesin.peelg.com/) | [GitHub 开源地址](https://github.com/peelfig/LeeSinMotion)
 
 ---
-## Usage
 
-### Basics
-<img src="https://google.github.io/inspectorspacetime/images/Panel.png" width="380">
+## ✨ 核心特性
 
-Select a pair or several pairs of keyframes and click the giant button. These keyframe values will be collected within a floating panel and may be copied out as text or added to a renderable blue side panel in a duplicate comp.
+- **⚡️ 即时标注 (Instant Specs)**：选中任意两个关键帧，即刻获取时长、延迟和数值变化，告别手动计算。
+- **🎯 精准数据 (Precision Data)**：导出数值、差值变化以及标准的贝塞尔曲线（Cubic-bezier），完美适配 CSS、Web、iOS 或 Android 开发。
+- **⏱ 时间感知 (Time Awareness)**：独有的“获取单个键时间”功能，让您精确锁定动画事件在时间轴上的发生瞬间。
+- **📝 格式灵活 (Format Flexibility)**：支持导出为 Markdown（文档）、JSON（代码）或纯文本，方便分享到 Jira、Notion、飞书或 Slack。
 
-### Pastable Text
-<img src="https://google.github.io/inspectorspacetime/images/PropPanel.png" width="380">
+---
 
-Selected keyframe pairs are now added to the property list as plain text. Additional keys may be added to the list and the overall duration and delay of each key pair will update.
+## 🚀 安装说明
 
-**Note: v3.0 Updates–** Added "Get single key time" feature and full Chinese language support for the landing page.
+### macOS
+将 `LeeSinMotion.jsx` 拷贝到 AE 脚本 UI 目录：
+`/应用程序/Adobe After Effects CC 2025/Scripts/Script UI Panels`
 
-### Data output
-<img src="https://google.github.io/inspectorspacetime/images/DataOutput.gif" width="380">
+### Windows
+将 `LeeSinMotion.jsx` 拷贝到 AE 脚本 UI 目录：
+`C:\Program Files\Adobe\Adobe After Effects CC 2025\Support Files\Scripts\ScriptUI Panels`
 
-Keyframe data output:
+*安装完成后，重启 After Effects，在“窗口”菜单最下方即可找到 LeeSin Motion。*
 
-- Property name
-- Delay time (live value)
-- Duration of keyframe pair
-- Value change
-- Cubic Bezier interpolation curve
-#### Position
-- May be coordinates or distance
-- 3X is the default DP for working at 1080x1920
+---
 
-## Generator Buttons
+## 📖 使用指南
 
-### Isolation Layer
-<img src="https://google.github.io/inspectorspacetime/images/IsoLayer.gif" width="380">
+1. **选中关键帧**：在 AE 时间轴中选中一组或多组关键帧。
+2. **获取参数**：点击插件中的“从选定的关键帧获取参数”按钮。
+3. **复制分享**：在 Text、MD 或 JSON 面板中复制数据，直接分发给开发同事。
 
-If your comp is really busy it can be tough to clearly see what's being spec'd. An isolation layer is just an adjustment layer that will grey out everything below it to get a little more focus on what you're showing.
+---
 
-## Time Counter
-<img src="https://google.github.io/inspectorspacetime/images/TimeCounter.gif" width="380">
+## ❤️ 致敬与传承
 
-Created with every spec, a counter is also available as its own layer. Create a millisecond counter with a defined start and end point. Start the timer at the beginning of the transition to easily illustrate the global start time.
+这个项目最初由动效界的大神 **[Adam Plouff](http://www.battleaxe.co/)** (BattleAxe 创始人) 开发（原名 Inspector Spacetime）。他为 AE 社区带来了极其优雅的工作流。
 
-## Pointer
-<img src="https://google.github.io/inspectorspacetime/images/Pointer.png" width="380">
+**peelfig (v3.0) 增强版：**
+- **全界面中文化**：更符合国内设计师的使用习惯。
+- **功能增强**：加入了“单帧时间获取”等实用功能。
+- **UI 优化**：适配最新的 AE 版本和现代审美。
 
-Everyone names things differently, which can lead to confusion. So draw a line from spec data to the visual element and save yourself a lot of explaining. This button will get you started, or just draw your own. Either way, it'll make your life easier.
+感谢 Adam 的开源精神，我们在此基础上继续进化。
 
-___
-## Why the dumb name?
+---
 
-Named after the Doctor Who parody from the underrated NBC comedy [Community][a97544c1]. The series really falls apart at the end but it's mostly pretty amazing.
+## 📄 开源协议
 
-  [a97544c1]: https://youtu.be/WQAgPaJvvHU "Community - Inspector Spacetime'"
-
-In**spec**tor Spacetime. It's a bad pun. But I'm a dad. I can't help it.
-___
-
-## License
-Apache 2.0
+基于 [Apache 2.0](LICENSE.md) 协议开源。

@@ -367,13 +367,21 @@
     function getKeysSpec() {
         try {
 
-            if (!setComp()) { return; }
+            if (!setComp()) {
+                return {
+                    compName: '请打开一个合成',
+                    spacetimeVersion: scriptVersion,
+                    aeVersion: app.version,
+                    totalDur: 0,
+                    layers: []
+                };
+            }
             let selKeys = getSelKeys()
             let keyRange = getKeyRange()
 
             if (selKeys.length < 1) {
                 return {
-                    compName: 'Select some keyframes',
+                    compName: '请先在时间轴中选择两个关键帧',
                     layers: []
                 }
             }
@@ -561,6 +569,8 @@
 
             let str = ''
 
+            if (!specObj) return '';
+
             str = `${h1}${specObj.compName}`
             str += (markdown) ? '\n\n' : '\n'
             str += (specObj.totalDur) ? `Total duration: ${timeToMs(specObj.totalDur)}\n` : ''
@@ -730,11 +740,11 @@
 
 
         var btn_getSpec = myPanel.add("button", undefined, undefined, { name: "btn_getSpec" });
-        btn_getSpec.text = "Get specs from selected keys";
+        btn_getSpec.text = "从选定的关键帧获取参数";
         btn_getSpec.alignment = ["fill", "top"];
 
         var btn_getSingleSpec = myPanel.add("button", undefined, undefined, { name: "btn_getSingleSpec" });
-        btn_getSingleSpec.text = "Get single key time";
+        btn_getSingleSpec.text = "获取单个键时间";
         btn_getSingleSpec.alignment = ["fill", "top"];
 
         // TPANEL1
@@ -806,7 +816,7 @@
 
         var btn_newCounter = group1.add("button", undefined, undefined, { name: "btn_newCounter" });
         btn_newCounter.helpTip = "Create a time counter layer";
-        btn_newCounter.text = "New counter";
+        btn_newCounter.text = "新计数器";
         btn_newCounter.justify = "left";
 
         var btn_settings = group1.add("button", undefined, undefined, { name: "btn_settings" });
@@ -817,7 +827,7 @@
 
         var btn_help = group1.add("button", undefined, undefined, { name: "btn_help" });
         btn_help.helpTip = "Guide";
-        btn_help.text = "Learn stuff";
+        btn_help.text = "最新版本";
         btn_help.justify = "right";
 
         group1.add("staticText", undefined, `v${scriptVersion}`, { name: "btn_help" });
@@ -884,7 +894,7 @@
             Folder(configFolder).execute()
         }
         btn_help.onClick = function () {
-            visitURL('https://leesinmotion.pages.dev/')
+            visitURL('https://leesin.peelg.com/')
         }
     }
 
