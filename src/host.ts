@@ -294,6 +294,29 @@
     }
 
     /**
+     * Check for script updates from GitHub
+     */
+    function checkUpdate() {
+        try {
+            var remoteUrl = "https://raw.githubusercontent.com/peelfig/LeeSinMotion/main/version.json";
+            var cmd = "";
+            if ($.os.indexOf("Windows") !== -1) {
+                cmd = 'powershell -command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadString(\'' + remoteUrl + '\')"';
+            } else {
+                cmd = 'curl -sL ' + remoteUrl;
+            }
+            var response = system.callSystem(cmd);
+            if (response && response !== "") {
+                var data = JSON.parse(response);
+                if (data && data.version) {
+                    return data.version;
+                }
+            }
+        } catch (e) { }
+        return null;
+    }
+
+    /**
      * JSON replacer filter
      *
      * @param {string} key - Object key
@@ -1088,7 +1111,15 @@
         btn_help.text = "最新版本";
         btn_help.justify = "right";
 
-        group1.add("staticText", undefined, `v${scriptVersion}`, { name: "btn_help" });
+        var verLabel = group1.add("staticText", undefined, `v${scriptVersion}`, { name: "verLabel" });
+
+        // Async-like update check (runs on UI build)
+        var latestVer = checkUpdate();
+        if (latestVer && latestVer !== scriptVersion) {
+            btn_help.text = "🚀 发现新版本 v" + latestVer;
+            btn_help.graphics.foregroundColor = btn_help.graphics.newPen(btn_help.graphics.PenType.SOLID_COLOR, [1, 0.4, 0, 1], 1);
+            verLabel.text = "v" + scriptVersion + " (旧版)";
+        }
 
 
 
