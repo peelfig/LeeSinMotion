@@ -12,7 +12,17 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.1">
+    <style>
+        /* Fallback to prevent giant icons during cache/load lag */
+        .icon svg,
+        .os-icon svg {
+            width: 32px;
+            height: 32px;
+            max-width: 100%;
+            transition: none;
+        }
+    </style>
     <link rel="icon" type="image/png" href="assets/logo.png">
 </head>
 
@@ -93,28 +103,56 @@
             <h2 class="section-title" data-i18n="features-title">Why LeeSin Motion?</h2>
             <div class="grid">
                 <div class="feature-card">
-                    <div class="icon">⚡️</div>
-                    <h3 data-i18n="f1-t">Instant Specs</h3>
-                    <p data-i18n="f1-d">Select any two keyframes and get instant duration, delay, and value changes. No
-                        more manual calculations.</p>
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="6" cy="6" r="3" />
+                            <path d="M8.12 8.12 12 12" />
+                            <circle cx="6" cy="18" r="3" />
+                            <path d="M8.12 15.88 12 12" />
+                            <path d="M20 4 8.12 15.88" />
+                            <path d="M20 20 8.12 8.12" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="f1-t">Extract: Segment</h3>
+                    <p data-i18n="f1-d">Analyze easing and value changes between two keyframes for precise handoff.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="icon">🎯</div>
-                    <h3 data-i18n="f2-t">Precision Data</h3>
-                    <p data-i18n="f2-d">Exports values, delta differences, and standard cubic-bezier curves ready for
-                        CSS or native development.</p>
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41L13.7 2.71a2.41 2.41 0 0 0-3.41 0z" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="f2-t">Extract: Single Key</h3>
+                    <p data-i18n="f2-d">Capture exact absolute time points of specific keyframes in your timeline.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="icon">⏱</div>
-                    <h3 data-i18n="f3-t">Time Awareness</h3>
-                    <p data-i18n="f3-d">New "Single Key Time" feature allows you to pinpoint exactly when an animation
-                        event occurs in the timeline.</p>
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="m12.83 2.18a2 2 0 0 0-1.66 0L2.83 6.18a2 2 0 0 0 0 3.64l8.34 4a2 2 0 0 0 1.66 0l8.34-4a2 2 0 0 0 0-3.64l-8.34-4Z" />
+                            <path d="m2.83 14.18 8.34 4a2 2 0 0 0 1.66 0l8.34-4" />
+                            <path d="m2.83 10.18 8.34 4a2 2 0 0 0 1.66 0l8.34-4" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="f3-t">Scan: Current Layer</h3>
+                    <p data-i18n="f3-d">Bulk export every animation property and keyframe pair for an entire layer.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="icon">📝</div>
-                    <h3 data-i18n="f4-t">Format Flexibility</h3>
-                    <p data-i18n="f4-d">Copy as Markdown for documentation, JSON for code, or plain text for quick Slack
-                        messages.</p>
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z" />
+                            <path d="m6.2 5.3 3.1 3.9" />
+                            <path d="m12.4 3.4 3.1 4" />
+                            <path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="f4-t">Scan: Pre-comp</h3>
+                    <p data-i18n="f4-d">Generate a full animation script ordered by element appearance time.</p>
                 </div>
             </div>
         </div>
@@ -165,7 +203,12 @@
             <h2 class="section-title" data-i18n="install-title">Installation Guide</h2>
             <div class="install-grid">
                 <div class="install-card fade-in-up">
-                    <div class="os-icon"></div>
+                    <div class="os-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor">
+                            <path
+                                d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+                        </svg>
+                    </div>
                     <h3>macOS</h3>
                     <p data-i18n="install-mac-desc">Copy LeeSinMotion.jsx to the AE ScriptUI Panels directory:</p>
                     <div class="path-box">
@@ -173,7 +216,12 @@
                     </div>
                 </div>
                 <div class="install-card fade-in-up delay-1">
-                    <div class="os-icon">⊞</div>
+                    <div class="os-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor">
+                            <path
+                                d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.4H0v149.9zm203.8 28.1L448 512V268.4H203.8v178zm0-380.6v177.4H448V0L203.8 65.8z" />
+                        </svg>
+                    </div>
                     <h3>Windows</h3>
                     <p data-i18n="install-win-desc">Copy LeeSinMotion.jsx to the AE ScriptUI Panels directory:</p>
                     <div class="path-box">
@@ -216,15 +264,15 @@
                 "mockup-prop": "Property:",
                 "mockup-dur": "Duration:",
                 "mockup-ease": "Ease:",
-                "features-title": "Why LeeSin Motion?",
-                "f1-t": "Instant Specs",
-                "f1-d": "Select any two keyframes and get instant duration, delay, and value changes. No more manual calculations.",
-                "f2-t": "Precision Data",
-                "f2-d": "Exports values, delta differences, and standard cubic-bezier curves ready for CSS or native development.",
-                "f3-t": "Time Awareness",
-                "f3-d": "New \"Single Key Time\" feature allows you to pinpoint exactly when an animation event occurs in the timeline.",
-                "f4-t": "Format Flexibility",
-                "f4-d": "Copy as Markdown for documentation, JSON for code, or plain text for quick Slack messages.",
+                "features-title": "Four Powerful Modes",
+                "f1-t": "Extract: Segment",
+                "f1-d": "Analyze easing and value changes between two keyframes for precise handoff.",
+                "f2-t": "Extract: Single Key",
+                "f2-d": "Capture exact absolute time points of specific keyframes in your timeline.",
+                "f3-t": "Scan: Current Layer",
+                "f3-d": "Bulk export every animation property and keyframe pair for an entire layer.",
+                "f4-t": "Scan: Pre-comp",
+                "f4-d": "Generate a full animation script ordered by element appearance time.",
                 "how-title": "Seamless Workflow",
                 "s1-t": "Select Keyframes",
                 "s1-d": "Highlight the start and end keyframes of any animation in your timeline.",
@@ -252,15 +300,15 @@
                 "mockup-prop": "属性:",
                 "mockup-dur": "时长:",
                 "mockup-ease": "缓动:",
-                "features-title": "为什么选择 LeeSin Motion?",
-                "f1-t": "即时标注",
-                "f1-d": "选中任意两个关键帧，即刻获取时长、延迟和数值变化。告别繁琐的手动计算。",
-                "f2-t": "精准数据",
-                "f2-d": "导出数值、差值变化以及标准的贝塞尔曲线，完美适配 CSS 或原生开发。",
-                "f3-t": "时间感知",
-                "f3-d": "全新的“单帧时间”功能，让您精确锁定动画事件在时间轴上的发生瞬间。",
-                "f4-t": "格式灵活",
-                "f4-d": "支持导出为 Markdown（文档）、JSON（代码）或纯文本（即时消息）。",
+                "features-title": "四大强力模式",
+                "f1-t": "提取：选中片段",
+                "f1-d": "精确分析选中的两个关键帧之间的贝塞尔曲线和数值变化参数。",
+                "f2-t": "提取：单帧时间",
+                "f2-d": "精确锁定单个关键帧在合成中发生的绝对时间点，方便同步开发场景。",
+                "f3-t": "扫描：当前图层",
+                "f3-d": "一键批量扫描并导出当前选中图层的所有动画属性和关键帧数据。",
+                "f4-t": "扫描：当前预合成",
+                "f4-d": "“动效剧本”模式。扫描整个预合成，并按元素执行先后顺序排列展示。",
                 "how-title": "无缝工作流",
                 "s1-t": "选中关键帧",
                 "s1-d": "在时间轴中高亮显示任何动画的起始和结束关键帧。",

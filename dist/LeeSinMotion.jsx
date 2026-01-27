@@ -53,14 +53,23 @@
             };
     })();
     var scriptName = 'LeeSinMotion';
-    var scriptVersion = '3.0';
+    var scriptVersion = '3.4';
     var thisComp, easeLib = {};
     var exp_counter = 'var sTime = marker.key("Start").time; var eTime = marker.key("End").time; var countTime = Math.max(time - sTime, 0); countTime = Math.min(countTime, eTime - sTime); var counter = Math.round(countTime * 1000); var playIcon = (time > sTime && time < eTime) ? "\u25ba " : "\u25a0 "; playIcon + counter + "ms";';
     var configFolder = Folder.userData.toString() + '/BattleAxe/LeeSinMotion/config/';
     initConfig();
     function initConfig() {
         easeLib = {
-            linear: [0.0, 0.0, 1.0, 1.0],
+            "Default (默认)": [0.25, 0.1, 0.25, 1.0],
+            "EaseOut (缓出)": [0.0, 0.0, 0.58, 1.0],
+            "EaseIn (缓入)": [0.42, 0.0, 1.0, 1.0],
+            "EaseInEaseOut (缓入缓出)": [0.42, 0.0, 0.58, 1.0],
+            "Linear (线性)": [0.0, 0.0, 1.0, 1.0],
+            "Emphasized Decelerate (强调减速)": [0.05, 0.7, 0.1, 1.0],
+            "Emphasized Accelerate (强调加速)": [0.3, 0.0, 0.8, 0.15],
+            "Standard (标准)": [0.2, 0.0, 0.0, 1.0],
+            "Standard Decelerate (标准减速)": [0.0, 0.0, 0.0, 1.0],
+            "Standard Accelerate (标准加速)": [0.3, 0.0, 1.0, 1.0],
             hold: [0.0, 0.0, 0.0, 0.0]
         };
         var easeLibPath = configFolder + "/ease-library.json";
@@ -76,7 +85,10 @@
             var data = file.read();
             file.close();
             if (data != '') {
-                easeLib = JSON.parse(data);
+                var userLib = JSON.parse(data);
+                for (var key in userLib) {
+                    easeLib[key] = userLib[key];
+                }
             }
         }
     }
@@ -295,6 +307,56 @@
                     delay: propSpec.delay
                 });
             }
+            for (var _j = 0, _k = spec.layers; _j < _k.length; _j++) {
+                var l = _k[_j];
+                var layerObj = null;
+                for (var i = 1; i <= thisComp.numLayers; i++) {
+                    if (thisComp.layer(i).name === l.name) {
+                        layerObj = thisComp.layer(i);
+                        break;
+                    }
+                }
+                if (layerObj) {
+                    try {
+                        var rect = layerObj.sourceRectAtTime(thisComp.time, false);
+                        var apVal = layerObj.anchorPoint.value;
+                        var w = rect.width;
+                        var h = rect.height;
+                        var ax = apVal[0] - rect.left;
+                        var ay = apVal[1] - rect.top;
+                        var tol = 2;
+                        var apLabel = "";
+                        var isL = Math.abs(ax) < tol;
+                        var isC = Math.abs(ax - w / 2) < tol;
+                        var isR = Math.abs(ax - w) < tol;
+                        var isT = Math.abs(ay) < tol;
+                        var isM = Math.abs(ay - h / 2) < tol;
+                        var isB = Math.abs(ay - h) < tol;
+                        if (isT && isL)
+                            apLabel = "Top-Left (左上)";
+                        else if (isT && isC)
+                            apLabel = "Top-Center (中上)";
+                        else if (isT && isR)
+                            apLabel = "Top-Right (右上)";
+                        else if (isM && isL)
+                            apLabel = "Middle-Left (左中)";
+                        else if (isM && isC)
+                            apLabel = "Center (居中)";
+                        else if (isM && isR)
+                            apLabel = "Middle-Right (右中)";
+                        else if (isB && isL)
+                            apLabel = "Bottom-Left (左下)";
+                        else if (isB && isC)
+                            apLabel = "Bottom-Center (中下)";
+                        else if (isB && isR)
+                            apLabel = "Bottom-Right (右下)";
+                        else
+                            apLabel = "Custom (" + round(apVal[0]) + ", " + round(apVal[1]) + ")";
+                        l.anchorPoint = apLabel;
+                    }
+                    catch (e) { }
+                }
+            }
             return spec;
         }
         catch (e) {
@@ -327,6 +389,156 @@
         catch (e) {
             return null;
         }
+    }
+    function getLayerSpec() {
+        try {
+            if (!setComp())
+                return;
+            if (thisComp.selectedLayers.length === 0) {
+                alert("请先选择一个图层");
+                return;
+            }
+            var layer = thisComp.selectedLayers[0];
+            var layerData = collectLayerData(layer);
+            if (!layerData)
+                return null;
+            return {
+                compName: thisComp.name,
+                spacetimeVersion: scriptVersion,
+                aeVersion: app.version,
+                totalDur: thisComp.workAreaDuration,
+                layers: [layerData]
+            };
+        }
+        catch (e) {
+            alert(e.toString());
+            return null;
+        }
+    }
+    function getCompSpec() {
+        try {
+            if (!setComp())
+                return;
+            var allLayerSpecs = [];
+            for (var i = 1; i <= thisComp.numLayers; i++) {
+                var layer = thisComp.layer(i);
+                var layerData = collectLayerData(layer, true);
+                if (layerData && layerData.props.length > 0) {
+                    var earliest = 999999;
+                    for (var _i = 0, _a = layerData.props; _i < _a.length; _i++) {
+                        var p = _a[_i];
+                        earliest = Math.min(earliest, p.delay);
+                    }
+                    allLayerSpecs.push({
+                        data: layerData,
+                        startTime: earliest
+                    });
+                }
+            }
+            if (allLayerSpecs.length === 0) {
+                alert("合成中没有找到任何关键帧数据");
+                return null;
+            }
+            allLayerSpecs.sort(function (a, b) { return a.startTime - b.startTime; });
+            var spec = {
+                compName: thisComp.name + " (全合成动效剧本)",
+                spacetimeVersion: scriptVersion,
+                aeVersion: app.version,
+                totalDur: thisComp.workAreaDuration,
+                layers: []
+            };
+            for (var _b = 0, allLayerSpecs_1 = allLayerSpecs; _b < allLayerSpecs_1.length; _b++) {
+                var item = allLayerSpecs_1[_b];
+                spec.layers.push(item.data);
+            }
+            return spec;
+        }
+        catch (e) {
+            alert(e.toString());
+            return null;
+        }
+    }
+    function collectLayerData(layer, silent) {
+        var layerSpec = {
+            name: layer.name,
+            props: []
+        };
+        function crawlProps(group) {
+            for (var i = 1; i <= group.numProperties; i++) {
+                var prop = group.property(i);
+                if (prop.propertyType === PropertyType.PROPERTY) {
+                    if (prop.canVaryOverTime && prop.numKeys > 1) {
+                        for (var k = 1; k < prop.numKeys; k++) {
+                            var actKey = {
+                                prop: prop,
+                                keys: [k, k + 1]
+                            };
+                            var propSpec = getPropSpec(actKey);
+                            var nameOverride = null;
+                            if (prop.matchName.match(/Control/) != null) {
+                                nameOverride = prop.propertyGroup(1).name;
+                            }
+                            layerSpec.props.push({
+                                name: (nameOverride || prop.name) + (" [" + k + "-" + (k + 1) + "]"),
+                                value: propSpec.value,
+                                duration: propSpec.duration,
+                                ease: propSpec.ease,
+                                delay: prop.keyTime(k),
+                            });
+                        }
+                    }
+                }
+                else if (prop.propertyType === PropertyType.INDEXED_GROUP || prop.propertyType === PropertyType.NAMED_GROUP) {
+                    crawlProps(prop);
+                }
+            }
+        }
+        crawlProps(layer);
+        var ap = null;
+        try {
+            var rect = layer.sourceRectAtTime(app.project.activeItem.time, false);
+            var apVal = layer.anchorPoint.value;
+            var w = rect.width;
+            var h = rect.height;
+            var ax = apVal[0] - rect.left;
+            var ay = apVal[1] - rect.top;
+            var tol = 2;
+            var isL = Math.abs(ax) < tol;
+            var isC = Math.abs(ax - w / 2) < tol;
+            var isR = Math.abs(ax - w) < tol;
+            var isT = Math.abs(ay) < tol;
+            var isM = Math.abs(ay - h / 2) < tol;
+            var isB = Math.abs(ay - h) < tol;
+            if (isT && isL)
+                ap = "Top-Left (左上)";
+            else if (isT && isC)
+                ap = "Top-Center (中上)";
+            else if (isT && isR)
+                ap = "Top-Right (右上)";
+            else if (isM && isL)
+                ap = "Middle-Left (左中)";
+            else if (isM && isC)
+                ap = "Center (居中)";
+            else if (isM && isR)
+                ap = "Middle-Right (右中)";
+            else if (isB && isL)
+                ap = "Bottom-Left (左下)";
+            else if (isB && isC)
+                ap = "Bottom-Center (中下)";
+            else if (isB && isR)
+                ap = "Bottom-Right (右下)";
+            else
+                ap = "Custom (" + round(apVal[0]) + ", " + round(apVal[1]) + ")";
+        }
+        catch (e) { }
+        if (layerSpec.props.length === 0) {
+            if (!silent)
+                alert("该图层没有关键帧");
+            return null;
+        }
+        layerSpec.props.sort(function (a, b) { return a.delay - b.delay; });
+        layerSpec.anchorPoint = ap;
+        return layerSpec;
     }
     function getPropSpec(actKey) {
         var _a;
@@ -394,6 +606,13 @@
             y1 = (keyOutSpeed * x1) * (duration / (change || 0.0000000001));
             x2 = 1 - endInEase.influence / 100;
             y2 = 1 + (keyInSpeed * (x2 - 1)) * (duration / (change || 0.0000000001));
+            if (Math.abs(y1) < 0.01)
+                y1 = 0;
+            if (Math.abs(y2 - 1) < 0.01)
+                y2 = 1;
+            if (Math.abs(y2) < 0.01)
+                y2 = 0;
+
             if (prop.keyOutInterpolationType(actKey.keys[0]) == KeyframeInterpolationType.LINEAR) {
                 x1 = 0.17, y1 = 0.17;
             }
@@ -405,7 +624,7 @@
             value: valChange,
             duration: duration,
             ease: [x1, y1, x2, y2],
-            delay: prop.keyTime(keys[0]) - thisComp.time
+            delay: prop.keyTime(keys[0])
         };
     }
     function parseSpecText(specObj, markdown) {
@@ -423,19 +642,20 @@
                 var layer = _a[_i];
                 str += (markdown) ? "\n" : "";
                 str += "" + h2 + layer.name;
+                if (layer.anchorPoint) {
+                    str += "\n";
+                    str += (markdown) ? "Anchor: " + layer.anchorPoint : "[Anchor: " + layer.anchorPoint + "]";
+                }
                 for (var _b = 0, _c = layer.props; _b < _c.length; _b++) {
                     var prop = _c[_b];
                     var val = getVal(prop.value);
+                    if (!val || val === '' || val === ' ')
+                        continue;
                     str += "\n";
-                    str += "- " + prop.name;
-                    if (val != ' ') {
-                        str += ": " + val;
-                    }
+                    str += "- " + prop.name + ": " + val;
+                    str += "" + propLine + "Start: " + timeToMs(prop.delay);
                     str += propLine + "Duration: " + timeToMs(prop.duration);
                     str += "" + propLine + getCubic(prop.ease);
-                    if (prop.delay != 0) {
-                        str += propLine + "Delay: " + timeToMs(prop.delay);
-                    }
                     str += "\n";
                 }
             }
@@ -447,48 +667,89 @@
     }
     function getVal(valObj) {
         var str = '';
-        var diff = 0;
-        if (valObj.matchName.match(/Opacity/) != null) {
-            diff = round(valObj.end - valObj.start);
-            str = round(valObj.start) + " \u2192 " + round(valObj.end) + "% (" + diff + "%)";
-        }
-        else if (valObj.matchName.match(/Scale/) != null) {
-            diff = round(valObj.end[0] - valObj.start[0]);
-            str = round(valObj.start[0]) + " \u2192 " + round(valObj.end[0]) + "% (" + diff + "%)";
-        }
-        else if (valObj.matchName.match(/Position_0|Position_1|Position_2/) != null) {
-            diff = round(valObj.end - valObj.start);
-            str = round(valObj.start) + " \u2192 " + round(valObj.end) + "px (" + diff + ")";
-        }
-        else if (valObj.matchName.match(/Rotate|Angle/) != null) {
-            diff = round(valObj.end - valObj.start);
-            str = round(valObj.start) + " \u2192 " + round(valObj.end) + "\u00BA (" + diff + "\u00BA)";
-        }
-        else if (valObj.matchName.match(/Color|Shape/) != null) {
-            str += colorToHex(valObj.start) + " \u2192 " + colorToHex(valObj.end);
-        }
-        else {
-            str = null;
-        }
-        if (!str) {
-            str = '';
-            if (valObj.start.length > 1) {
-                var diffs = [];
-                for (var i in valObj.start) {
-                    if (!isNaN(i)) {
-                        str += round(valObj.start[i]) + " \u2192 " + round(valObj.end[i]) + " | ";
-                        diffs.push(round(valObj.end[i] - valObj.start[i]));
+        var labels = ['X', 'Y', 'Z', 'W'];
+        var isPosition = valObj.matchName.match(/Position/) != null;
+        var isAnchor = valObj.matchName.match(/Anchor/) != null;
+        var formatSingle = function (start, end, unit, showDelta, axisIndex) {
+            if (unit === void 0) { unit = ''; }
+            if (showDelta === void 0) { showDelta = true; }
+            if (axisIndex === void 0) { axisIndex = -1; }
+            var s = round(start);
+            var e = round(end);
+            var roundedDelta = Math.round(end - start);
+            if (roundedDelta === 0)
+                return null;
+            var deltaStr = '';
+            if (showDelta) {
+                if ((isPosition || isAnchor) && axisIndex >= 0) {
+                    var arrow = '';
+                    if (axisIndex === 0) {
+                        if (isPosition)
+                            arrow = roundedDelta > 0 ? ' \u2192' : ' \u2190';
+                        else if (isAnchor)
+                            arrow = roundedDelta > 0 ? ' \u2190' : ' \u2192';
                     }
+                    else if (axisIndex === 1) {
+                        if (isPosition)
+                            arrow = roundedDelta > 0 ? ' \u2193' : ' \u2191';
+                        else if (isAnchor)
+                            arrow = roundedDelta > 0 ? ' \u2191' : ' \u2193';
+                    }
+                    deltaStr = " (" + Math.abs(roundedDelta) + unit + arrow + ")";
                 }
-                str = str.slice(0, -3);
-                if (diffs.length > 0) {
-                    str += " | " + diffs.join(" | ");
+                else {
+                    deltaStr = " (" + (roundedDelta > 0 ? '+' : '') + roundedDelta + unit + ")";
                 }
+            }
+            return s + " \u2192 " + e + unit + deltaStr;
+        };
+        var isScale = valObj.matchName.match(/Scale/i) != null;
+        var toVal = function (v) { return isScale ? v / 100 : v; };
+        var unit = isScale ? '' : (valObj.matchName.match(/Opacity/i) ? '%' : ((isPosition || isAnchor) ? 'px' : (valObj.matchName.match(/Rotate|Angle/i) ? '\u00BA' : '')));
+        if (valObj.matchName.match(/Color/i) != null) {
+            var c1 = colorToHex(valObj.start);
+            var c2 = colorToHex(valObj.end);
+            if (c1 === c2)
+                return '';
+            str = c1 + " \u2192 " + c2;
+        }
+        else if (valObj.matchName.match(/Shape/i) != null) {
+            return '';
+        }
+        else if (valObj.start instanceof Array && valObj.start.length > 1) {
+            var isUniform = true;
+            for (var i = 1; i < valObj.start.length; i++) {
+                if (Math.abs(valObj.start[i] - valObj.start[0]) > 0.01 || Math.abs(valObj.end[i] - valObj.end[0]) > 0.01) {
+                    isUniform = false;
+                    break;
+                }
+            }
+            if (isUniform) {
+                str = formatSingle(toVal(valObj.start[0]), toVal(valObj.end[0]), unit, true, (isPosition || isAnchor) ? 0 : -1) || '';
             }
             else {
-                diff = round(valObj.end - valObj.start);
-                str = round(valObj.start) + " \u2192 " + round(valObj.end) + " (" + diff + ")";
+                var parts = [];
+                for (var i = 0; i < valObj.start.length; i++) {
+                    var res = formatSingle(toVal(valObj.start[i]), toVal(valObj.end[i]), unit, true, (isPosition || isAnchor) ? i : -1);
+                    if (res)
+                        parts.push(labels[i] + ": " + res);
+                }
+                str = parts.length > 0 ? ('\n  ' + parts.join('\n  ')) : '';
             }
+        }
+        else {
+            var axisIdx = -1;
+            if (isPosition || isAnchor) {
+                if (valObj.matchName.match(/_0|X/))
+                    axisIdx = 0;
+                else if (valObj.matchName.match(/_1|Y/))
+                    axisIdx = 1;
+                else if (valObj.matchName.match(/_2|Z/))
+                    axisIdx = 2;
+                else
+                    axisIdx = 0;
+            }
+            str = formatSingle(toVal(valObj.start), toVal(valObj.end), unit, true, axisIdx) || '';
         }
         return str;
         function colorToHex(colorArr) {
@@ -505,7 +766,7 @@
         for (var key in easeLib) {
             if (Object.hasOwnProperty.call(easeLib, key)) {
                 var cubicBez = easeLib[key];
-                var tollerance = 0.01;
+                var tollerance = 0.05;
                 var match = true;
                 for (var i = 0; i < cubicBez.length; i++) {
                     if (Math.abs(cubicBez[i] - arr[i]) > tollerance) {
@@ -520,11 +781,13 @@
                 }
             }
         }
-        var parenCubic = "(" + round(arr[0]) + ", " + round(arr[1]) + ", " + round(arr[2]) + ", " + round(arr[3]) + ")";
         if (tokenMatch) {
-            val = "" + tokenMatch.name;
+            var c = tokenMatch.cubic;
+            var fixedCubic = "(" + round(c[0]) + ", " + round(c[1]) + ", " + round(c[2]) + ", " + round(c[3]) + ")";
+            val = tokenMatch.name + ": " + fixedCubic;
         }
         else {
+            var parenCubic = "(" + round(arr[0]) + ", " + round(arr[1]) + ", " + round(arr[2]) + ", " + round(arr[3]) + ")";
             val = parenCubic;
         }
         return val;
@@ -550,11 +813,21 @@
         myPanel.spacing = 4;
         myPanel.margins = 12;
         var btn_getSpec = myPanel.add("button", undefined, undefined, { name: "btn_getSpec" });
-        btn_getSpec.text = "从选定的关键帧获取参数";
+        btn_getSpec.text = "提取：选中片段";
+        btn_getSpec.helpTip = "请先选中同属性的两个关键帧";
         btn_getSpec.alignment = ["fill", "top"];
         var btn_getSingleSpec = myPanel.add("button", undefined, undefined, { name: "btn_getSingleSpec" });
-        btn_getSingleSpec.text = "获取单个键时间";
+        btn_getSingleSpec.text = "提取：单帧时间";
+        btn_getSingleSpec.helpTip = "请先选中一个关键帧";
         btn_getSingleSpec.alignment = ["fill", "top"];
+        var btn_getLayerSpec = myPanel.add("button", undefined, undefined, { name: "btn_getLayerSpec" });
+        btn_getLayerSpec.text = "扫描：当前图层";
+        btn_getLayerSpec.helpTip = "扫描并导出当前选中图层的所有动画数据";
+        btn_getLayerSpec.alignment = ["fill", "top"];
+        var btn_getCompSpec = myPanel.add("button", undefined, undefined, { name: "btn_getCompSpec" });
+        btn_getCompSpec.text = "扫描：当前预合成";
+        btn_getCompSpec.helpTip = "一键导出当前合成内所有图层的动效剧本（按执行顺序排列）";
+        btn_getCompSpec.alignment = ["fill", "top"];
         var tpanel1 = myPanel.add("tabbedpanel", undefined, undefined, { name: "tpanel1" });
         tpanel1.alignChildren = "fill";
         tpanel1.margins = 0;
@@ -637,6 +910,22 @@
             }
             else {
                 alert("Please select exactly one keyframe.");
+            }
+        };
+        btn_getLayerSpec.onClick = function () {
+            var specJSON = getLayerSpec();
+            if (specJSON) {
+                txt_textField.text = parseSpecText(specJSON);
+                txt_mdField.text = parseSpecText(specJSON, true);
+                txt_jsonField.text = (JSON.stringify(specJSON, false, 2));
+            }
+        };
+        btn_getCompSpec.onClick = function () {
+            var specJSON = getCompSpec();
+            if (specJSON) {
+                txt_textField.text = parseSpecText(specJSON);
+                txt_mdField.text = parseSpecText(specJSON, true);
+                txt_jsonField.text = (JSON.stringify(specJSON, false, 2));
             }
         };
         btn_saveJSON.onClick = function () {

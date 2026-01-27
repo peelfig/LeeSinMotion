@@ -15,7 +15,7 @@
 
     //================ VARIABLES ======================
     var scriptName = 'LeeSinMotion';
-    var scriptVersion = '3.0';
+    var scriptVersion = '3.4';
     var thisComp, easeLib = {};
 
     var exp_counter = 'var sTime = marker.key("Start").time; var eTime = marker.key("End").time; var countTime = Math.max(time - sTime, 0); countTime = Math.min(countTime, eTime - sTime); var counter = Math.round(countTime * 1000); var playIcon = (time > sTime && time < eTime) ? "\u25ba " : "\u25a0 "; playIcon + counter + "ms";';
@@ -30,7 +30,16 @@
      */
     function initConfig() {
         easeLib = {
-            linear: [0.0, 0.0, 1.0, 1.0],
+            "Default (默认)": [0.25, 0.1, 0.25, 1.0],
+            "EaseOut (缓出)": [0.0, 0.0, 0.58, 1.0],
+            "EaseIn (缓入)": [0.42, 0.0, 1.0, 1.0],
+            "EaseInEaseOut (缓入缓出)": [0.42, 0.0, 0.58, 1.0],
+            "Linear (线性)": [0.0, 0.0, 1.0, 1.0],
+            "Emphasized Decelerate (强调减速)": [0.05, 0.7, 0.1, 1.0],
+            "Emphasized Accelerate (强调加速)": [0.3, 0.0, 0.8, 0.15],
+            "Standard (标准)": [0.2, 0.0, 0.0, 1.0],
+            "Standard Decelerate (标准减速)": [0.0, 0.0, 0.0, 1.0],
+            "Standard Accelerate (标准加速)": [0.3, 0.0, 1.0, 1.0],
             hold: [0.0, 0.0, 0.0, 0.0],
         }
         const easeLibPath = `${configFolder}/ease-library.json`
@@ -48,7 +57,11 @@
             file.close()
 
             if (data != '') {                       // make sure there is something in the file
-                easeLib = JSON.parse(data)
+                const userLib = JSON.parse(data);
+                // Merge user custom easing with defaults, keeping user ones if they conflict
+                for (let key in userLib) {
+                    easeLib[key] = userLib[key];
+                }
             }
         }
     }
@@ -342,17 +355,7 @@
         spacetimeVersion: string;
         aeVersion: string;
         totalDur: number;
-        layers: any
-        // layers: [{
-        //     name: string;
-        //     props: [{
-        //         name: string;
-        //         value: object;
-        //         duration: number;
-        //         delay: number;
-        //         ease: number[];
-        //     }];
-        // }]
+        layers: any;
     }
     interface PropVal {
         name: string;
@@ -426,7 +429,47 @@
                     ease: propSpec.ease,
                     delay: propSpec.delay,
                 })
+            }
 
+            // Enhanced: Add Anchor Point logic to getKeysSpec
+            for (let l of spec.layers) {
+                let layerObj: Layer | null = null;
+                for (let i = 1; i <= thisComp.numLayers; i++) {
+                    if (thisComp.layer(i).name === l.name) {
+                        layerObj = thisComp.layer(i);
+                        break;
+                    }
+                }
+                if (layerObj) {
+                    try {
+                        const rect = (layerObj as any).sourceRectAtTime(thisComp.time, false);
+                        const apVal = (layerObj as any).anchorPoint.value;
+                        const w = rect.width;
+                        const h = rect.height;
+                        const ax = apVal[0] - rect.left;
+                        const ay = apVal[1] - rect.top;
+                        const tol = 2;
+                        let apLabel = "";
+                        const isL = Math.abs(ax) < tol;
+                        const isC = Math.abs(ax - w / 2) < tol;
+                        const isR = Math.abs(ax - w) < tol;
+                        const isT = Math.abs(ay) < tol;
+                        const isM = Math.abs(ay - h / 2) < tol;
+                        const isB = Math.abs(ay - h) < tol;
+
+                        if (isT && isL) apLabel = "Top-Left (左上)";
+                        else if (isT && isC) apLabel = "Top-Center (中上)";
+                        else if (isT && isR) apLabel = "Top-Right (右上)";
+                        else if (isM && isL) apLabel = "Middle-Left (左中)";
+                        else if (isM && isC) apLabel = "Center (居中)";
+                        else if (isM && isR) apLabel = "Middle-Right (右中)";
+                        else if (isB && isL) apLabel = "Bottom-Left (左下)";
+                        else if (isB && isC) apLabel = "Bottom-Center (中下)";
+                        else if (isB && isR) apLabel = "Bottom-Right (右下)";
+                        else apLabel = "Custom (" + round(apVal[0]) + ", " + round(apVal[1]) + ")";
+                        (l as any).anchorPoint = apLabel;
+                    } catch (e) { }
+                }
             }
 
             return spec
@@ -462,6 +505,171 @@
             }
             return null;
         } catch (e) { return null; }
+    }
+
+    /**
+     * Scans all keys for a selected layer
+     * 
+     * @returns {Spec}
+     */
+    function getLayerSpec() {
+        try {
+            if (!setComp())
+                return;
+            if (thisComp.selectedLayers.length === 0) {
+                alert("请先选择一个图层");
+                return;
+            }
+
+            var layer = thisComp.selectedLayers[0];
+            let layerData = collectLayerData(layer);
+            if (!layerData) return null;
+
+            return {
+                compName: thisComp.name,
+                spacetimeVersion: scriptVersion,
+                aeVersion: app.version,
+                totalDur: thisComp.workAreaDuration,
+                layers: [layerData]
+            };
+        }
+        catch (e) {
+            alert(e.toString());
+            return null;
+        }
+    }
+
+    function getCompSpec() {
+        try {
+            if (!setComp()) return;
+
+            let allLayerSpecs: any[] = [];
+
+            for (let i = 1; i <= thisComp.numLayers; i++) {
+                let layer = thisComp.layer(i);
+                let layerData = collectLayerData(layer, true);
+                if (layerData && layerData.props.length > 0) {
+                    // Find earliest start time in this layer for sorting
+                    let earliest = 999999;
+                    for (let p of layerData.props) {
+                        earliest = Math.min(earliest, p.delay);
+                    }
+                    allLayerSpecs.push({
+                        data: layerData,
+                        startTime: earliest
+                    });
+                }
+            }
+
+            if (allLayerSpecs.length === 0) {
+                alert("合成中没有找到任何关键帧数据");
+                return null;
+            }
+
+            // Sort layers by their earliest animation start time
+            allLayerSpecs.sort((a, b) => a.startTime - b.startTime);
+
+            let spec: Spec = {
+                compName: thisComp.name + " (全合成动效剧本)",
+                spacetimeVersion: scriptVersion,
+                aeVersion: app.version,
+                totalDur: thisComp.workAreaDuration,
+                layers: []
+            };
+
+            for (let item of allLayerSpecs) {
+                spec.layers.push(item.data);
+            }
+
+            return spec;
+        } catch (e) {
+            alert(e.toString());
+            return null;
+        }
+    }
+
+    function collectLayerData(layer: Layer, silent?: boolean) {
+        let layerSpec = {
+            name: layer.name,
+            props: [] as any[]
+        };
+
+        function crawlProps(group) {
+            for (var i = 1; i <= group.numProperties; i++) {
+                var prop = group.property(i);
+                if (prop.propertyType === PropertyType.PROPERTY) {
+                    if (prop.canVaryOverTime && prop.numKeys > 1) {
+                        for (var k = 1; k < prop.numKeys; k++) {
+                            var actKey = {
+                                prop: prop,
+                                keys: [k, k + 1]
+                            };
+                            var propSpec = getPropSpec(actKey as any);
+                            var nameOverride = null;
+                            if (prop.matchName.match(/Control/) != null) {
+                                nameOverride = prop.propertyGroup(1).name;
+                            }
+                            layerSpec.props.push({
+                                name: (nameOverride || prop.name) + ` [${k}-${k + 1}]`,
+                                value: propSpec.value,
+                                duration: propSpec.duration,
+                                ease: propSpec.ease,
+                                delay: prop.keyTime(k),
+                            });
+                        }
+                    }
+                }
+                else if (prop.propertyType === PropertyType.INDEXED_GROUP || prop.propertyType === PropertyType.NAMED_GROUP) {
+                    crawlProps(prop);
+                }
+            }
+        }
+
+        crawlProps(layer);
+
+        // Calculate Anchor Point grid position using sourceRect
+        let ap: any = null;
+        try {
+            const rect = (layer as any).sourceRectAtTime(app.project.activeItem.time, false);
+            const apVal = (layer as any).anchorPoint.value;
+
+            // For most layers, we want relative to the source content
+            const w = rect.width;
+            const h = rect.height;
+            const ax = apVal[0] - rect.left;
+            const ay = apVal[1] - rect.top;
+
+            // Detection logic with 2px tolerance for anti-aliasing
+            const tol = 2;
+            const isL = Math.abs(ax) < tol;
+            const isC = Math.abs(ax - w / 2) < tol;
+            const isR = Math.abs(ax - w) < tol;
+            const isT = Math.abs(ay) < tol;
+            const isM = Math.abs(ay - h / 2) < tol;
+            const isB = Math.abs(ay - h) < tol;
+
+            if (isT && isL) ap = "Top-Left (左上)";
+            else if (isT && isC) ap = "Top-Center (中上)";
+            else if (isT && isR) ap = "Top-Right (右上)";
+            else if (isM && isL) ap = "Middle-Left (左中)";
+            else if (isM && isC) ap = "Center (居中)";
+            else if (isM && isR) ap = "Middle-Right (右中)";
+            else if (isB && isL) ap = "Bottom-Left (左下)";
+            else if (isB && isC) ap = "Bottom-Center (中下)";
+            else if (isB && isR) ap = "Bottom-Right (右下)";
+            else ap = "Custom (" + round(apVal[0]) + ", " + round(apVal[1]) + ")";
+        } catch (e) { }
+
+        if (layerSpec.props.length === 0) {
+            if (!silent) alert("该图层没有关键帧");
+            return null;
+        }
+
+        // Sort properties within layer by start time
+        layerSpec.props.sort((a, b) => a.delay - b.delay);
+
+        (layerSpec as any).anchorPoint = ap;
+        return layerSpec;
     }
 
     function getPropSpec(actKey: { prop: Property, keys: number[] }) {
@@ -538,6 +746,11 @@
             x2 = 1 - endInEase.influence / 100
             y2 = 1 + (keyInSpeed * (x2 - 1)) * (duration / (change || 0.0000000001))
 
+            // Snapping to 0/1 for near-zero speeds (Stability for Flow/Motion plugins)
+            if (Math.abs(y1) < 0.01) y1 = 0;
+            if (Math.abs(y2 - 1) < 0.01) y2 = 1;
+            if (Math.abs(y2) < 0.01) y2 = 0; // for hold-like scenarios
+
             // check if either of the keys is linear and overwrite
             if (prop.keyOutInterpolationType(actKey.keys[0]) == KeyframeInterpolationType.LINEAR) {
                 x1 = 0.17, y1 = 0.17
@@ -550,7 +763,7 @@
             value: valChange,
             duration,
             ease: [x1, y1, x2, y2],
-            delay: prop.keyTime(keys[0]) - thisComp.time,
+            delay: prop.keyTime(keys[0]),
         }
     }
 
@@ -578,16 +791,19 @@
             for (let layer of specObj.layers) {
                 str += (markdown) ? `\n` : ``
                 str += `${h2}${layer.name}`
+                if (layer.anchorPoint) {
+                    str += `\n`
+                    str += (markdown) ? `Anchor: ${layer.anchorPoint}` : `[Anchor: ${layer.anchorPoint}]`
+                }
 
-                for (let prop of layer.props) {
-                    let val = getVal(prop.value)
-                    str += `\n`
-                    str += `- ${prop.name}`                                                   // name
-                    if (val != ' ') { str += `: ${val}` }                                                   // value change
-                    str += `${propLine}Duration: ${timeToMs(prop.duration)}`                              // duration
-                    str += `${propLine}${getCubic(prop.ease)}`                                            // ease
-                    if (prop.delay != 0) { str += `${propLine}Delay: ${timeToMs(prop.delay)}` }             // delay
-                    str += `\n`
+                for (const prop of layer.props) {
+                    const val = getVal(prop.value)
+                    if (!val || val === '' || val === ' ') continue // Skip property if no change detected
+
+                    str += `\n- ${prop.name}: ${val}`
+                    str += `${propLine}Start: ${timeToMs(prop.delay)}`
+                    str += `${propLine}Duration: ${timeToMs(prop.duration)}`
+                    str += `${propLine}${getCubic(prop.ease)}\n`
                 }
             }
 
@@ -603,47 +819,77 @@
      */
     function getVal(valObj: PropVal) {
         let str = ''
-        let diff = 0
+        const labels = ['X', 'Y', 'Z', 'W']
+        const isPosition = valObj.matchName.match(/Position/) != null
+        const isAnchor = valObj.matchName.match(/Anchor/) != null
 
-        if (valObj.matchName.match(/Opacity/) != null) {
-            diff = round(valObj.end - valObj.start)
-            str = `${round(valObj.start)} → ${round(valObj.end)}% (${diff}%)`
-        } else if (valObj.matchName.match(/Scale/) != null) {
-            diff = round(valObj.end[0] - valObj.start[0])
-            str = `${round(valObj.start[0])} → ${round(valObj.end[0])}% (${diff}%)`
-        } else if (valObj.matchName.match(/Position_0|Position_1|Position_2/) != null) {
-            diff = round(valObj.end - valObj.start)
-            str = `${round(valObj.start)} → ${round(valObj.end)}px (${diff})`
-        } else if (valObj.matchName.match(/Rotate|Angle/) != null) {
-            diff = round(valObj.end - valObj.start)
-            str = `${round(valObj.start)} → ${round(valObj.end)}º (${diff}º)`
-        } else if (valObj.matchName.match(/Color|Shape/) != null) {
-            str += `${colorToHex(valObj.start)} → ${colorToHex(valObj.end)}`
-        } else {
-            str = null
+        const formatSingle = (start, end, unit = '', showDelta = true, axisIndex = -1) => {
+            const s = round(start)
+            const e = round(end)
+            const roundedDelta = Math.round(end - start)
+
+            if (roundedDelta === 0) return null // Hide if no change
+
+            let deltaStr = ''
+            if (showDelta) {
+                if ((isPosition || isAnchor) && axisIndex >= 0) {
+                    let arrow = ''
+                    // Position: Y+ is Down, Y- is Up. X+ is Right, X- is Left.
+                    // Anchor: Inverted relative to Position.
+                    if (axisIndex === 0) {
+                        if (isPosition) arrow = roundedDelta > 0 ? ' →' : ' ←'
+                        if (isAnchor) arrow = roundedDelta > 0 ? ' ←' : ' →'
+                    }
+                    if (axisIndex === 1) {
+                        if (isPosition) arrow = roundedDelta > 0 ? ' ↓' : ' ↑'
+                        if (isAnchor) arrow = roundedDelta > 0 ? ' ↑' : ' ↓'
+                    }
+                    deltaStr = ` (${Math.abs(roundedDelta)}${unit}${arrow})`
+                } else {
+                    deltaStr = ` (${roundedDelta > 0 ? '+' : ''}${roundedDelta}${unit})`
+                }
+            }
+            return `${s} → ${e}${unit}${deltaStr}`
         }
 
-        if (!str) {
-            str = ''
-            if (valObj.start.length > 1) {      // iterate through multi dimension props
-                let diffs = []
-                for (const i in valObj.start) {
-                    // if (Object.prototype.hasOwnProperty.call(valObj, start)) {
-                    if (!isNaN(i)) {
-                        str += `${round(valObj.start[i])} → ${round(valObj.end[i])} | `
-                        diffs.push(round(valObj.end[i] - valObj.start[i]))
-                    }
+        const isScale = valObj.matchName.match(/Scale/i) != null
+        const toVal = (v) => isScale ? v / 100 : v
+        const unit = isScale ? '' : (valObj.matchName.match(/Opacity/i) ? '%' : ((isPosition || isAnchor) ? 'px' : (valObj.matchName.match(/Rotate|Angle/i) ? 'º' : '')))
 
+        if (valObj.matchName.match(/Color/i) != null) {
+            const c1 = colorToHex(valObj.start)
+            const c2 = colorToHex(valObj.end)
+            if (c1 === c2) return ''
+            str = `${c1} → ${c2}`
+        } else if (valObj.matchName.match(/Shape/i) != null) {
+            return ''
+        } else if (valObj.start instanceof Array && valObj.start.length > 1) {
+            let isUniform = true
+            for (let i = 1; i < valObj.start.length; i++) {
+                if (Math.abs(valObj.start[i] - valObj.start[0]) > 0.01 || Math.abs(valObj.end[i] - valObj.end[0]) > 0.01) {
+                    isUniform = false
+                    break
                 }
-                str = str.slice(0, -3)      // remove the last ` :: `
-                if (diffs.length > 0) {
-                    str += " | " + diffs.join(" | ")
-                }
-            } else {
-                diff = round(valObj.end - valObj.start)
-                str = `${round(valObj.start)} → ${round(valObj.end)} (${diff})`
-
             }
+            if (isUniform) {
+                str = formatSingle(toVal(valObj.start[0]), toVal(valObj.end[0]), unit, true, (isPosition || isAnchor) ? 0 : -1) || ''
+            } else {
+                const parts = []
+                for (let i = 0; i < valObj.start.length; i++) {
+                    const res = formatSingle(toVal(valObj.start[i]), toVal(valObj.end[i]), unit, true, (isPosition || isAnchor) ? i : -1)
+                    if (res) parts.push(`${labels[i]}: ${res}`)
+                }
+                str = parts.length > 0 ? ('\n  ' + parts.join('\n  ')) : ''
+            }
+        } else {
+            let axisIdx = -1
+            if (isPosition || isAnchor) {
+                if (valObj.matchName.match(/_0|X/)) axisIdx = 0
+                else if (valObj.matchName.match(/_1|Y/)) axisIdx = 1
+                else if (valObj.matchName.match(/_2|Z/)) axisIdx = 2
+                else axisIdx = 0
+            }
+            str = formatSingle(toVal(valObj.start), toVal(valObj.end), unit, true, axisIdx) || ''
         }
 
         return str
@@ -673,7 +919,7 @@
             if (Object.hasOwnProperty.call(easeLib, key)) {
                 const cubicBez = easeLib[key];
 
-                const tollerance = 0.01
+                const tollerance = 0.05
 
                 let match = true
                 for (let i = 0; i < cubicBez.length; i++) {
@@ -690,13 +936,13 @@
                 }
             }
         }
-        let parenCubic = `(${round(arr[0])}, ${round(arr[1])}, ${round(arr[2])}, ${round(arr[3])})`
-
         if (tokenMatch) {
-            val = `${tokenMatch.name}`
-            // val = `${tokenMatch.name} - ${parenCubic}`
+            const c = tokenMatch.cubic;
+            const fixedCubic = `(${round(c[0])}, ${round(c[1])}, ${round(c[2])}, ${round(c[3])})`;
+            val = `${tokenMatch.name}: ${fixedCubic}`;
         } else {
-            val = parenCubic
+            const parenCubic = `(${round(arr[0])}, ${round(arr[1])}, ${round(arr[2])}, ${round(arr[3])})`;
+            val = parenCubic;
         }
 
         return val
@@ -740,12 +986,24 @@
 
 
         var btn_getSpec = myPanel.add("button", undefined, undefined, { name: "btn_getSpec" });
-        btn_getSpec.text = "从选定的关键帧获取参数";
+        btn_getSpec.text = "提取：选中片段";
+        btn_getSpec.helpTip = "请先选中同属性的两个关键帧";
         btn_getSpec.alignment = ["fill", "top"];
 
         var btn_getSingleSpec = myPanel.add("button", undefined, undefined, { name: "btn_getSingleSpec" });
-        btn_getSingleSpec.text = "获取单个键时间";
+        btn_getSingleSpec.text = "提取：单帧时间";
+        btn_getSingleSpec.helpTip = "请先选中一个关键帧";
         btn_getSingleSpec.alignment = ["fill", "top"];
+
+        var btn_getLayerSpec = myPanel.add("button", undefined, undefined, { name: "btn_getLayerSpec" });
+        btn_getLayerSpec.text = "扫描：当前图层";
+        btn_getLayerSpec.helpTip = "扫描并导出当前选中图层的所有动画数据";
+        btn_getLayerSpec.alignment = ["fill", "top"];
+
+        var btn_getCompSpec = myPanel.add("button", undefined, undefined, { name: "btn_getCompSpec" });
+        btn_getCompSpec.text = "扫描：当前预合成";
+        btn_getCompSpec.helpTip = "一键导出当前合成内所有图层的动效剧本（按执行顺序排列）";
+        btn_getCompSpec.alignment = ["fill", "top"];
 
         // TPANEL1
         // =======
@@ -867,6 +1125,24 @@
                 txt_jsonField.text = JSON.stringify(singleKey, null, 2);
             } else {
                 alert("Please select exactly one keyframe.");
+            }
+        }
+
+        btn_getLayerSpec.onClick = function () {
+            let specJSON = getLayerSpec()
+            if (specJSON) {
+                txt_textField.text = parseSpecText(specJSON)
+                txt_mdField.text = parseSpecText(specJSON, true)
+                txt_jsonField.text = (JSON.stringify(specJSON, false, 2))
+            }
+        }
+
+        btn_getCompSpec.onClick = function () {
+            let specJSON = getCompSpec()
+            if (specJSON) {
+                txt_textField.text = parseSpecText(specJSON)
+                txt_mdField.text = parseSpecText(specJSON, true)
+                txt_jsonField.text = (JSON.stringify(specJSON, false, 2))
             }
         }
         btn_saveJSON.onClick = function () {

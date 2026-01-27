@@ -329,8 +329,14 @@ body {
 }
 
 .feature-card .icon {
-    font-size: 2rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.feature-card .icon svg {
+    width: 32px;
+    height: 32px;
+    color: var(--accent);
+    filter: drop-shadow(0 0 5px var(--accent-glow));
 }
 
 .feature-card h3 {
@@ -487,10 +493,40 @@ body {
 
 /* Mobile */
 @media (max-width: 768px) {
+    .navbar {
+        padding: 0.8rem 0;
+    }
+
     .navbar .container {
-        flex-wrap: wrap;
-        gap: 1rem;
-        justify-content: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+    }
+
+    .nav-links a:not(.btn) {
+        display: none;
+    }
+
+    .nav-links {
+        gap: 0.6rem;
+    }
+
+    .logo {
+        font-size: 1.1rem;
+        white-space: nowrap;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    .lang-switch #langText {
+        display: none;
+    }
+
+    .lang-switch {
+        padding: 0.5rem;
     }
 
     .hero-content,
@@ -505,10 +541,6 @@ body {
 
     .hero {
         padding-top: 120px;
-    }
-
-    .nav-links {
-        gap: 1rem;
     }
 }
 
@@ -548,6 +580,11 @@ body {
     font-size: 2.5rem;
     margin-bottom: 1.5rem;
     opacity: 0.9;
+}
+
+.os-icon svg {
+    width: 40px;
+    height: 40px;
 }
 
 .install-card h3 {
