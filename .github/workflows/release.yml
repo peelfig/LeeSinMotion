@@ -36,11 +36,11 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create Zip Package
+      - name: Prepare Release Assets
         run: |
+          cp dist/LeeSinMotion.jsx "LeeSinMotion_v${{ env.VERSION }}.jsx"
           cd dist
-          zip -r "LeeSinMotion_v${{ env.VERSION }}_Release.zip" LeeSinMotion.jsx "安装方法.txt"
-          mv "LeeSinMotion_v${{ env.VERSION }}_Release.zip" ..
+          zip -r "../LeeSinMotion_v${{ env.VERSION }}_Release.zip" LeeSinMotion.jsx "安装方法.txt"
 
       - name: Create Release
         if: steps.check_tag.outputs.exists == 'false'
@@ -52,7 +52,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            dist/LeeSinMotion.jsx
+            LeeSinMotion_v${{ env.VERSION }}.jsx
             LeeSinMotion_v${{ env.VERSION }}_Release.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
