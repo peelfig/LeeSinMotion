@@ -15,7 +15,7 @@
 
     //================ VARIABLES ======================
     var scriptName = 'LeeSinMotion';
-    var scriptVersion = '3.5.1';
+    var scriptVersion = '3.5.2';
     var thisComp, easeLib = {};
 
     var exp_counter = 'var sTime = marker.key("Start").time; var eTime = marker.key("End").time; var countTime = Math.max(time - sTime, 0); countTime = Math.min(countTime, eTime - sTime); var counter = Math.round(countTime * 1000); var playIcon = (time > sTime && time < eTime) ? "\u25ba " : "\u25a0 "; playIcon + counter + "ms";';
@@ -869,7 +869,7 @@
                     }
                     deltaStr = ` (${Math.abs(roundedDelta)}${unit}${arrow})`
                 } else {
-                    deltaStr = ` (${roundedDelta > 0 ? '+' : ''}${roundedDelta}${unit})`
+                    deltaStr = ` (${roundedDelta}${unit})`
                 }
             }
             return `${s} → ${e}${unit}${deltaStr}`
