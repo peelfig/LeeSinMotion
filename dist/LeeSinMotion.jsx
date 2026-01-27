@@ -903,7 +903,8 @@
         btn_help.justify = "right";
         var verLabel = group1.add("staticText", undefined, "v" + scriptVersion, { name: "verLabel" });
         var latestVer = checkUpdate();
-        if (latestVer && latestVer !== scriptVersion) {
+        var hasUpdate = (latestVer && latestVer !== scriptVersion);
+        if (hasUpdate) {
             btn_help.text = "\uD83D\uDE80 \u53D1\u73B0\u65B0\u7248\u672C v" + latestVer;
             btn_help.graphics.foregroundColor = btn_help.graphics.newPen(btn_help.graphics.PenType.SOLID_COLOR, [1, 0.4, 0, 1], 1);
             verLabel.text = "v" + scriptVersion + " (\u65E7\u7248)";
@@ -974,7 +975,12 @@
             Folder(configFolder).execute();
         };
         btn_help.onClick = function () {
-            visitURL('https://leesin.peelg.com/');
+            if (hasUpdate) {
+                visitURL('https://github.com/peelfig/LeeSinMotion/releases/latest');
+            }
+            else {
+                visitURL('https://leesin.peelg.com/');
+            }
         };
     }
     var isKBarRunning = (typeof kbar !== 'undefined');

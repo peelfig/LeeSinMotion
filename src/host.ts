@@ -1113,16 +1113,15 @@
 
         var verLabel = group1.add("staticText", undefined, `v${scriptVersion}`, { name: "verLabel" });
 
-        // Async-like update check (runs on UI build)
+        // Update check logic
         var latestVer = checkUpdate();
-        if (latestVer && latestVer !== scriptVersion) {
+        var hasUpdate = (latestVer && latestVer !== scriptVersion);
+
+        if (hasUpdate) {
             btn_help.text = "🚀 发现新版本 v" + latestVer;
             btn_help.graphics.foregroundColor = btn_help.graphics.newPen(btn_help.graphics.PenType.SOLID_COLOR, [1, 0.4, 0, 1], 1);
             verLabel.text = "v" + scriptVersion + " (旧版)";
         }
-
-
-
 
         myPanel.onResizing = myPanel.onResize = function () {
             myPanel.layout.resize();
@@ -1201,7 +1200,11 @@
             Folder(configFolder).execute()
         }
         btn_help.onClick = function () {
-            visitURL('https://leesin.peelg.com/')
+            if (hasUpdate) {
+                visitURL('https://github.com/peelfig/LeeSinMotion/releases/latest');
+            } else {
+                visitURL('https://leesin.peelg.com/');
+            }
         }
     }
 
