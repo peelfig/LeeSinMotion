@@ -53,7 +53,7 @@
             };
     })();
     var scriptName = 'LeeSinMotion';
-    var scriptVersion = '3.5.0';
+    var scriptVersion = '3.5.1';
     var thisComp, easeLib = {};
     var exp_counter = 'var sTime = marker.key("Start").time; var eTime = marker.key("End").time; var countTime = Math.max(time - sTime, 0); countTime = Math.min(countTime, eTime - sTime); var counter = Math.round(countTime * 1000); var playIcon = (time > sTime && time < eTime) ? "\u25ba " : "\u25a0 "; playIcon + counter + "ms";';
     var configFolder = Folder.userData.toString() + '/BattleAxe/LeeSinMotion/config/';
@@ -723,8 +723,8 @@
             return s + " \u2192 " + e + unit + deltaStr;
         };
         var isScale = valObj.matchName.match(/Scale/i) != null;
-        var toVal = function (v) { return isScale ? v / 100 : v; };
-        var unit = isScale ? '' : (valObj.matchName.match(/Opacity/i) ? '%' : ((isPosition || isAnchor) ? 'px' : (valObj.matchName.match(/Rotate|Angle/i) ? '\u00BA' : '')));
+        var toVal = function (v) { return v; };
+        var unit = (isScale || valObj.matchName.match(/Opacity/i)) ? '%' : ((isPosition || isAnchor) ? 'px' : (valObj.matchName.match(/Rotate|Angle/i) ? '\u00BA' : ''));
         if (valObj.matchName.match(/Color/i) != null) {
             var c1 = colorToHex(valObj.start);
             var c2 = colorToHex(valObj.end);
