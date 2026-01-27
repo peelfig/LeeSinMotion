@@ -15,7 +15,7 @@
 
     //================ VARIABLES ======================
     var scriptName = 'LeeSinMotion';
-    var scriptVersion = '3.5.3';
+    var scriptVersion = '3.5.4';
     var thisComp, easeLib = {};
 
     var exp_counter = 'var sTime = marker.key("Start").time; var eTime = marker.key("End").time; var countTime = Math.max(time - sTime, 0); countTime = Math.min(countTime, eTime - sTime); var counter = Math.round(countTime * 1000); var playIcon = (time > sTime && time < eTime) ? "\u25ba " : "\u25a0 "; playIcon + counter + "ms";';
@@ -1115,7 +1115,21 @@
 
         // Update check logic
         var latestVer = checkUpdate();
-        var hasUpdate = (latestVer && latestVer !== scriptVersion);
+        var hasUpdate = false;
+        if (latestVer) {
+            var v1 = latestVer.split('.');
+            var v2 = scriptVersion.split('.');
+            for (var i = 0; i < 3; i++) {
+                var n1 = parseInt(v1[i] || '0', 10);
+                var n2 = parseInt(v2[i] || '0', 10);
+                if (n1 > n2) {
+                    hasUpdate = true;
+                    break;
+                } else if (n1 < n2) {
+                    break;
+                }
+            }
+        }
 
         if (hasUpdate) {
             btn_help.text = "🚀 升级 v" + latestVer;
