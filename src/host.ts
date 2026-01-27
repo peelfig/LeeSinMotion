@@ -1091,7 +1091,7 @@
         var group1 = myPanel.add("group", undefined, { name: "group1" });
         group1.orientation = "row";
         group1.alignChildren = ["left", "center"];
-        group1.spacing = 10;
+        group1.spacing = 6;
         group1.margins = 0;
         group1.alignment = ["fill", "bottom"];
 
@@ -1118,9 +1118,9 @@
         var hasUpdate = (latestVer && latestVer !== scriptVersion);
 
         if (hasUpdate) {
-            btn_help.text = "🚀 发现新版本 v" + latestVer;
+            btn_help.text = "🚀 升级 v" + latestVer;
             btn_help.graphics.foregroundColor = btn_help.graphics.newPen(btn_help.graphics.PenType.SOLID_COLOR, [1, 0.4, 0, 1], 1);
-            verLabel.text = "v" + scriptVersion + " (旧版)";
+            verLabel.text = "v" + scriptVersion;
         }
 
         myPanel.onResizing = myPanel.onResize = function () {

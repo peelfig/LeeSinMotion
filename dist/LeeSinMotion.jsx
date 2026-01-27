@@ -885,7 +885,7 @@
         var group1 = myPanel.add("group", undefined, { name: "group1" });
         group1.orientation = "row";
         group1.alignChildren = ["left", "center"];
-        group1.spacing = 10;
+        group1.spacing = 6;
         group1.margins = 0;
         group1.alignment = ["fill", "bottom"];
         var btn_newCounter = group1.add("button", undefined, undefined, { name: "btn_newCounter" });
@@ -905,9 +905,9 @@
         var latestVer = checkUpdate();
         var hasUpdate = (latestVer && latestVer !== scriptVersion);
         if (hasUpdate) {
-            btn_help.text = "\uD83D\uDE80 \u53D1\u73B0\u65B0\u7248\u672C v" + latestVer;
+            btn_help.text = "\uD83D\uDE80 \u5347\u7EA7 v" + latestVer;
             btn_help.graphics.foregroundColor = btn_help.graphics.newPen(btn_help.graphics.PenType.SOLID_COLOR, [1, 0.4, 0, 1], 1);
-            verLabel.text = "v" + scriptVersion + " (\u65E7\u7248)";
+            verLabel.text = "v" + scriptVersion;
         }
         myPanel.onResizing = myPanel.onResize = function () {
             myPanel.layout.resize();
