@@ -53,7 +53,7 @@
             };
     })();
     var scriptName = 'LeeSinMotion';
-    var scriptVersion = '3.5.2';
+    var scriptVersion = '3.5.3';
     var thisComp, easeLib = {};
     var exp_counter = 'var sTime = marker.key("Start").time; var eTime = marker.key("End").time; var countTime = Math.max(time - sTime, 0); countTime = Math.min(countTime, eTime - sTime); var counter = Math.round(countTime * 1000); var playIcon = (time > sTime && time < eTime) ? "\u25ba " : "\u25a0 "; playIcon + counter + "ms";';
     var configFolder = Folder.userData.toString() + '/BattleAxe/LeeSinMotion/config/';
@@ -717,7 +717,7 @@
                     deltaStr = " (" + Math.abs(roundedDelta) + unit + arrow + ")";
                 }
                 else {
-                    deltaStr = " (" + roundedDelta + unit + ")";
+                    deltaStr = " (" + Math.abs(roundedDelta) + unit + ")";
                 }
             }
             return s + " \u2192 " + e + unit + deltaStr;
