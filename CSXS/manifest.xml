@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ExtensionManifest Version="7.0" ExtensionBundleId="com.peel.leesin.motion" ExtensionBundleVersion="3.5.4"
-	ExtensionBundleName="LeeSinMotion LAB" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	ExtensionBundleName="LeeSinMotion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
 		<Extension Id="com.peel.leesin.motion.panel" Version="3.5.4" />
 	</ExtensionList>
@@ -30,7 +30,7 @@
 				</Lifecycle>
 				<UI>
 					<Type>Panel</Type>
-					<Menu>LeeSinMotion LAB (CEP)</Menu>
+					<Menu>LeeSinMotion</Menu>
 					<Geometry>
 						<Size>
 							<Height>600</Height>

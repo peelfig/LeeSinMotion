@@ -74,7 +74,6 @@
             overflow: hidden;
         }
 
-        /* Editable Text Area Style */
         #code-view {
             flex: 1;
             background: transparent;
@@ -181,6 +180,8 @@
             font-size: 11px;
             font-weight: 500;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            /* Ensure display is manageable via JS */
+            display: flex;
         }
 
         .icon-btn:hover {
@@ -260,11 +261,17 @@
     </div>
 
     <div class="editor-container">
-        <!-- Editable Content View with spellcheck disabled for code -->
         <div id="code-view" contenteditable="true" spellcheck="false"><span class="text-dim" contenteditable="false">//
                 Ready.</span></div>
 
         <div class="floating-actions">
+            <button class="icon-btn" id="btn-export" title="Export HTML Timeline">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z" />
+                </svg>
+                导出
+            </button>
             <button class="icon-btn" id="btn-copy" title="Copy to clipboard">
                 <svg viewBox="0 0 24 24">
                     <path d="M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2z" />
@@ -297,73 +304,307 @@
 
     <script src="CSInterface.js"></script>
     <script>
-        const cs = new CSInterface();
-        const codeView = document.getElementById('code-view');
-        const toast = document.getElementById('toast');
+        // Wait for DOM to be fully loaded
+        window.addEventListener('DOMContentLoaded', () => {
+            let cs;
+            try { cs = new CSInterface(); } catch (e) { console.error("CSInterface init failed", e); }
 
-        function openURL(url) {
-            if (window.cep && window.cep.util) { window.cep.util.openURLInDefaultBrowser(url); }
-            else if (cs.openURLInDefaultBrowser) { cs.openURLInDefaultBrowser(url); }
-            else { try { const cmd = (navigator.platform.indexOf('Mac') >= 0) ? `open "${url}"` : `start "" "${url}"`; window.cep.process.createProcess('/bin/sh', '-c', cmd); } catch (e) { } }
-        }
+            const codeView = document.getElementById('code-view');
+            const toast = document.getElementById('toast');
+            const btnExport = document.getElementById('btn-export');
+            const currentVer = "3.5.4";
 
-        function run(script) {
-            codeView.style.opacity = "0.5";
-            cs.evalScript(script, (res) => {
-                codeView.style.opacity = "1";
-                // If it's an error message, show it non-editable
-                if (res.indexOf("Error") !== -1 || res.indexOf("请") !== -1) {
-                    codeView.innerHTML = `<span class="text-dim" contenteditable="false">${res}</span>`;
-                } else {
-                    codeView.innerText = res;
-                }
-            });
-        }
+            function openURL(url) {
+                if (window.cep && window.cep.util) { window.cep.util.openURLInDefaultBrowser(url); }
+                else if (cs && cs.openURLInDefaultBrowser) { cs.openURLInDefaultBrowser(url); }
+                else { try { const cmd = (navigator.platform.indexOf('Mac') >= 0) ? `open "${url}"` : `start "" "${url}"`; window.cep.process.createProcess('/bin/sh', '-c', cmd); } catch (e) { } }
+            }
 
-        // Support Undo/Redo in CEP environment by intercepting shortcuts
-        codeView.addEventListener('keydown', (e) => {
-            // Check for Ctrl (Win) or Cmd (Mac)
-            if (e.ctrlKey || e.metaKey) {
-                if (e.key === 'z' || e.key === 'Z') {
-                    // Prevent AE from stealing the undo
-                    e.preventDefault();
-                    if (e.shiftKey) {
-                        document.execCommand('redo');
+            function run(script) {
+                if (!cs) return;
+                codeView.style.opacity = "0.5";
+                // Immediate feedback
+                if (codeView.innerText.trim() === "// Ready.") codeView.innerHTML = '<span class="text-dim">获取中...</span>';
+
+                cs.evalScript(script, (res) => {
+                    codeView.style.opacity = "1";
+                    if (res.indexOf("Error") !== -1 || res.indexOf("请") !== -1) {
+                        codeView.innerHTML = `<span class="text-dim" contenteditable="false">${res}</span>`;
                     } else {
-                        document.execCommand('undo');
+                        codeView.innerText = res;
+                    }
+                });
+            }
+
+            function showToast(msg) {
+                toast.textContent = msg;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2000);
+            }
+
+            // Safe Export Toggle
+            const setExport = (show) => {
+                if (btnExport) btnExport.style.display = show ? 'flex' : 'none';
+            };
+
+            // Event Bindings
+            document.getElementById('btn-extract').onclick = () => { setExport(true); run('getKeysSpec()'); };
+            document.getElementById('btn-single').onclick = () => { setExport(false); run('getSingleKeySpec()'); };
+            document.getElementById('btn-layer').onclick = () => { setExport(true); run('getLayerSpec()'); };
+            document.getElementById('btn-comp').onclick = () => { setExport(true); run('getCompSpec()'); };
+
+            document.getElementById('btn-copy').onclick = () => {
+                const textToCopy = codeView.innerText;
+                if (!textToCopy || textToCopy.trim().startsWith("//") || textToCopy.trim().startsWith("获取中")) return;
+                const el = document.createElement('textarea');
+                el.value = textToCopy;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                showToast("已复制");
+            };
+
+            document.getElementById('btn-clear').onclick = () => {
+                codeView.innerHTML = '<span class="text-dim" contenteditable="false">// Ready.</span>';
+            };
+
+            // Export Handler
+            if (btnExport) {
+                btnExport.onclick = () => {
+                    const text = codeView.innerText;
+                    if (!text || text.length < 10 || text.includes("// Ready")) { showToast("无有效数据"); return; }
+
+                    try {
+                        const data = parseTextToTimelineData(text);
+                        if (!data || !data.layers || data.layers.length === 0) { showToast("无图层数据"); return; }
+
+                        const htmlContent = generateTimelineHTML(data);
+                        const fileName = "LeeSin_Timeline_" + new Date().getTime() + ".html";
+
+                        if (window.cep && window.cep.fs) {
+                            const result = window.cep.fs.showSaveDialogEx("导出动效", undefined, ["html"], fileName);
+                            if (result.data) {
+                                window.cep.fs.writeFile(result.data, htmlContent);
+                                showToast("保存成功!");
+                            }
+                        } else { showToast("环境不支持保存"); }
+                    } catch (e) {
+                        showToast("导出错误");
+                        console.error(e);
+                    }
+                };
+            }
+
+            document.getElementById('btn-web').onclick = () => openURL("https://leesin.peelg.com/");
+
+            // Und/Redo
+            codeView.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    if (e.key === 'z' || e.key === 'Z') {
+                        e.preventDefault();
+                        if (e.shiftKey) { document.execCommand('redo'); } else { document.execCommand('undo'); }
                     }
                 }
-            }
+            });
+
+            // Version Checking
+            const btnVer = document.getElementById('btn-version');
+            btnVer.textContent = "v" + currentVer;
+            fetch("https://raw.githubusercontent.com/peelfig/LeeSinMotion/main/version.json")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.version && data.version > currentVer) {
+                        btnVer.innerHTML = `<span style="color:#d97706">●</span> 升级 v${data.version}`;
+                        btnVer.style.color = "#fbbf24";
+                        btnVer.style.fontWeight = "600";
+                        btnVer.onclick = () => openURL("https://github.com/peelfig/LeeSinMotion/releases/latest");
+                    }
+                }).catch(e => { });
         });
 
-        function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
-        document.getElementById('btn-extract').onclick = () => run('getKeysSpec()');
-        document.getElementById('btn-single').onclick = () => run('getSingleKeySpec()');
-        document.getElementById('btn-layer').onclick = () => run('getLayerSpec()');
-        document.getElementById('btn-comp').onclick = () => run('getCompSpec()');
+        /* --- Robust Logic --- */
+        function parseTextToTimelineData(text) {
+            const lines = text.split('\n');
+            const data = { layers: [], totalDuration: 0, compName: "Animation Comp" };
+            let currentLayer = null;
+            let currentProp = null;
 
-        // Revised Copy Logic
-        document.getElementById('btn-copy').onclick = () => {
-            const textToCopy = codeView.innerText;
-            if (!textToCopy || textToCopy.trim() === "// Ready.") return;
+            // Regex helpers
+            const rxTotalDur = /Total duration:\s*(\d+)ms/i;
+            const rxLayerHeader = /^Layer\s+(\d+)\s*-\s*(.+)/i;
+            const rxPropLine = /^\-\s+(.+?)(?:\s*\[.*\])?$/;
+            const rxKeyStart = /^Start:\s*(\d+)ms/i;
+            const rxKeyDur = /^Duration:\s*(\d+)ms/i;
+            const rxEase = /^(Linear|Bezier|Ease|Default|Hold|Toggle)/i;
 
-            const el = document.createElement('textarea');
-            el.value = textToCopy;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            showToast("已复制");
-        };
+            lines.forEach((line, idx) => {
+                let t = line.trim();
+                if (!t) return;
 
-        document.getElementById('btn-clear').onclick = () => {
-            codeView.innerHTML = '<span class="text-dim" contenteditable="false">// Ready.</span>';
-        };
+                // Comp Name
+                if (idx === 0 && !t.startsWith('Total duration') && !t.startsWith('Layer') && !t.startsWith('-')) {
+                    data.compName = t.replace(/\(.*\)/, '').trim();
+                    if (data.compName.length > 30) data.compName = data.compName.substring(0, 30) + '...';
+                }
 
-        document.getElementById('btn-web').onclick = () => openURL("https://leesin.peelg.com/");
-        const currentVer = "3.5.4"; const btnVer = document.getElementById('btn-version'); btnVer.textContent = "v" + currentVer;
-        fetch("https://raw.githubusercontent.com/peelfig/LeeSinMotion/main/version.json").then(res => res.json()).then(data => { if (data.version && data.version > currentVer) { btnVer.innerHTML = `<span style="color:#d97706">●</span> 升级 v${data.version}`; btnVer.style.color = "#fbbf24"; btnVer.style.fontWeight = "600"; btnVer.onclick = () => openURL("https://github.com/peelfig/LeeSinMotion/releases/latest"); } }).catch(e => { });
+                // Global Duration
+                if (t.match(rxTotalDur)) {
+                    data.totalDuration = parseInt(t.match(rxTotalDur)[1]);
+                    return;
+                }
 
+                // Prop
+                if (t.startsWith('- ')) {
+                    if (!currentLayer) {
+                        currentLayer = { name: "Base Layer", index: 1, props: [] };
+                        data.layers.push(currentLayer);
+                    }
+                    const m = t.match(rxPropLine);
+                    const name = m ? m[1] : t.replace(/^- /, '');
+                    currentProp = { name: name, val: '', start: 0, duration: 0, ease: '', rawVals: [] };
+                    currentLayer.props.push(currentProp);
+                    return;
+                }
+
+                // Layer
+                const isLayerExplicit = t.match(rxLayerHeader);
+                const looksLikeValue = t.includes('->') || t.includes(':') || /^\d/.test(t) || t.startsWith('(') || t.startsWith('[');
+
+                if (isLayerExplicit || (!t.startsWith('//') && !looksLikeValue && !currentProp && idx > 0)) {
+                    let lName = t;
+                    let lIdx = data.layers.length + 1;
+                    if (isLayerExplicit) {
+                        lIdx = isLayerExplicit[1];
+                        lName = isLayerExplicit[2];
+                    }
+                    currentLayer = { name: lName, index: lIdx, props: [] };
+                    data.layers.push(currentLayer);
+                    currentProp = null;
+                    return;
+                }
+
+                // Prop Detail
+                if (currentProp) {
+                    if (t.match(rxKeyStart)) currentProp.start = parseInt(t.match(rxKeyStart)[1]);
+                    else if (t.match(rxKeyDur)) currentProp.duration = parseInt(t.match(rxKeyDur)[1]);
+                    else if (t.match(rxEase)) currentProp.ease = t;
+                    else if (t.startsWith('[')) { }
+                    else { if (!t.match(rxTotalDur)) currentProp.rawVals.push(t); }
+                }
+            });
+
+            // Post-process: Correct Total Duration Calculation
+            // CRITICAL FIX: Ensure totalDuration covers the maximum end time of any property.
+            let maxEndTime = 0;
+            data.layers.forEach(l => {
+                l.props.forEach(p => {
+                    p.val = p.rawVals.join(' ');
+                    const end = p.start + p.duration;
+                    if (end > maxEndTime) maxEndTime = end;
+                });
+            });
+
+            // If the parsed duration is less than the actual animation end, stretch it.
+            if (data.totalDuration < maxEndTime) {
+                data.totalDuration = maxEndTime;
+            }
+            // Fallback for empty/zero duration
+            if (data.totalDuration === 0) data.totalDuration = 2000;
+
+            return data;
+        }
+
+        function generateTimelineHTML(data) {
+            const total = data.totalDuration;
+            let tracksHtml = '';
+
+            data.layers.forEach((layer, index) => {
+                if (layer.props.length === 0) return;
+
+                tracksHtml += `<div class="layer-section">`;
+                tracksHtml += `<div class="layer-title-row"><span class="layer-badge">${layer.index}</span> ${layer.name}</div>`;
+
+                layer.props.forEach(prop => {
+                    const startPct = (prop.start / total) * 100;
+                    const durPct = (prop.duration / total) * 100;
+
+                    let waitBlock = '';
+                    if (prop.start > 0) {
+                        waitBlock = `<div class="wait-block" style="width: ${startPct}%;">Wait ${prop.start}ms</div>`;
+                    }
+
+                    tracksHtml += `
+                    <div class="prop-group">
+                        <div class="prop-header">
+                            <span class="prop-name">${prop.name}</span>
+                            <span class="prop-value">${prop.val}</span>
+                        </div>
+                        
+                        <div class="timeline-track">
+                             ${waitBlock}
+                             <div class="action-block" style="left: ${startPct}%; width: ${durPct}%;">
+                                 ${prop.duration}ms
+                             </div>
+                        </div>
+                        
+                        <div class="prop-footer">
+                            easing: <span class="ease-val">${prop.ease || 'Linear'}</span>
+                            <span class="time-range">${prop.start}ms - ${prop.start + prop.duration}ms</span>
+                        </div>
+                    </div>`;
+                });
+                tracksHtml += `</div>`;
+            });
+
+            return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>LeeSin Animation Timeline</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #fff; color: #333; padding: 40px; }
+  .wrapper { max-width: 900px; margin: 0 auto; }
+  .header-area { margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .header-area h1 { font-size: 18px; font-weight: 600; color: #111; margin: 0; display: flex; align-items: center; gap: 8px; }
+  .comp-badge { 
+      font-size: 14px; color: #8b5cf6; font-weight: 600; 
+      background: #f5f3ff; padding: 6px 14px; border-radius: 20px; 
+      border: 1px solid #e9d5ff;
+      max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+  }
+  .ruler { display: flex; justify-content: space-between; color: #888; font-size: 12px; margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 5px; }
+  .layer-section { margin-bottom: 40px; border-left: 3px solid #f3f4f6; padding-left: 20px; }
+  .layer-title-row { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .layer-badge { background: #e5e7eb; color: #374151; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; min-width: 16px; text-align: center; }
+  .prop-group { margin-bottom: 24px; }
+  .prop-header { font-size: 14px; margin-bottom: 6px; }
+  .prop-name { color: #8b5cf6; font-weight: 700; margin-right: 8px; } 
+  .prop-value { color: #999; font-weight: 400; font-size: 13px; font-family: "Menlo", monospace; }
+  .timeline-track { position: relative; height: 36px; background: #fafafa; border-radius: 6px; overflow: hidden; display: flex; width: 100%; border: 1px solid #f5f5f5; }
+  .wait-block { height: 100%; background: #f3f3f3; color: #aaa; font-size: 11px; display: flex; align-items: center; justify-content: center; border-right: 2px dashed #ddd; box-sizing: border-box; white-space: nowrap; overflow: hidden; }
+  .action-block { position: absolute; height: 100%; background: #f3e8ff; border: 2px solid #a855f7; border-radius: 6px; color: #7e22ce; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; z-index: 2; }
+  .prop-footer { margin-top: 6px; font-size: 12px; color: #888; display: flex; gap: 16px; }
+  .ease-val { color: #444; font-weight: 500; }
+  .time-range { color: #aaa; }
+</style>
+</head>
+<body>
+  <div class="wrapper">
+      <div class="header-area">
+          <h1><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 动画规格说明书</h1>
+          <div class="comp-badge">${data.compName}</div>
+      </div>
+      <div class="ruler">
+          <span>0ms</span>
+          <span>${Math.round(total / 2)}ms</span>
+          <span>${total}ms</span>
+      </div>
+      ${tracksHtml}
+  </div>
+</body>
+</html>`;
+        }
     </script>
 </body>
 
