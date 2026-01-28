@@ -74,6 +74,7 @@
             overflow: hidden;
         }
 
+        /* Editable Text Area Style */
         #code-view {
             flex: 1;
             background: transparent;
@@ -88,6 +89,10 @@
             overflow-y: auto;
             user-select: text;
             -webkit-user-select: text;
+        }
+
+        #code-view:focus {
+            background: #252526;
         }
 
         .text-dim {
@@ -144,7 +149,6 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        /* Floating Actions - Pill Buttons */
         .floating-actions {
             position: absolute;
             top: 12px;
@@ -256,8 +260,9 @@
     </div>
 
     <div class="editor-container">
-        <!-- Pure Text Output -->
-        <div id="code-view"><span class="text-dim">// Ready.</span></div>
+        <!-- Editable Content View with spellcheck disabled for code -->
+        <div id="code-view" contenteditable="true" spellcheck="false"><span class="text-dim" contenteditable="false">//
+                Ready.</span></div>
 
         <div class="floating-actions">
             <button class="icon-btn" id="btn-copy" title="Copy to clipboard">
@@ -295,29 +300,41 @@
         const cs = new CSInterface();
         const codeView = document.getElementById('code-view');
         const toast = document.getElementById('toast');
-        let rawContent = "";
 
-        // ... (Keep openURL and boilerplate) ...
         function openURL(url) {
             if (window.cep && window.cep.util) { window.cep.util.openURLInDefaultBrowser(url); }
             else if (cs.openURLInDefaultBrowser) { cs.openURLInDefaultBrowser(url); }
             else { try { const cmd = (navigator.platform.indexOf('Mac') >= 0) ? `open "${url}"` : `start "" "${url}"`; window.cep.process.createProcess('/bin/sh', '-c', cmd); } catch (e) { } }
         }
 
-        // --- Pure Text Mode (Safe & Stable) ---
         function run(script) {
             codeView.style.opacity = "0.5";
             cs.evalScript(script, (res) => {
                 codeView.style.opacity = "1";
-                rawContent = res;
-
+                // If it's an error message, show it non-editable
                 if (res.indexOf("Error") !== -1 || res.indexOf("请") !== -1) {
-                    codeView.innerHTML = `<span class="text-dim">${res}</span>`;
+                    codeView.innerHTML = `<span class="text-dim" contenteditable="false">${res}</span>`;
                 } else {
                     codeView.innerText = res;
                 }
             });
         }
+
+        // Support Undo/Redo in CEP environment by intercepting shortcuts
+        codeView.addEventListener('keydown', (e) => {
+            // Check for Ctrl (Win) or Cmd (Mac)
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'z' || e.key === 'Z') {
+                    // Prevent AE from stealing the undo
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        document.execCommand('redo');
+                    } else {
+                        document.execCommand('undo');
+                    }
+                }
+            }
+        });
 
         function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
         document.getElementById('btn-extract').onclick = () => run('getKeysSpec()');
@@ -325,10 +342,13 @@
         document.getElementById('btn-layer').onclick = () => run('getLayerSpec()');
         document.getElementById('btn-comp').onclick = () => run('getCompSpec()');
 
+        // Revised Copy Logic
         document.getElementById('btn-copy').onclick = () => {
-            if (!rawContent) return;
+            const textToCopy = codeView.innerText;
+            if (!textToCopy || textToCopy.trim() === "// Ready.") return;
+
             const el = document.createElement('textarea');
-            el.value = rawContent;
+            el.value = textToCopy;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
@@ -337,8 +357,7 @@
         };
 
         document.getElementById('btn-clear').onclick = () => {
-            rawContent = "";
-            codeView.innerHTML = '<span class="text-dim">// Ready.</span>';
+            codeView.innerHTML = '<span class="text-dim" contenteditable="false">// Ready.</span>';
         };
 
         document.getElementById('btn-web').onclick = () => openURL("https://leesin.peelg.com/");
