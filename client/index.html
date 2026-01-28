@@ -95,7 +95,6 @@
             color: #999;
         }
 
-        /* Website Icon/Text Style */
         #btn-web {
             color: #888;
             display: flex;
@@ -121,7 +120,7 @@
     <textarea id="output" readonly>请打开一个合成</textarea>
 
     <div class="footer">
-        <button id="btn-web" class="footer-btn">🔗 访问官网</button>
+        <button id="btn-web" class="footer-btn">访问官网</button>
         <button id="btn-version" class="footer-btn">v3.5.4 CEP</button>
     </div>
 
@@ -129,7 +128,6 @@
     <script>
         const cs = new CSInterface();
 
-        // Helper: Robust Open URL
         function openURL(url) {
             if (window.cep && window.cep.util) {
                 window.cep.util.openURLInDefaultBrowser(url);
@@ -154,11 +152,6 @@
             openURL("https://leesin.peelg.com/");
         };
 
-        // Version button also goes to releases if clicked, but initially just label
-        document.getElementById('btn-version').onclick = () => {
-            // Optional: also go to site or just do nothing
-        };
-
         function run(script) {
             document.getElementById('output').value = "计算中...";
             cs.evalScript(script, (res) => {
@@ -172,7 +165,7 @@
             .then(data => {
                 if (data.version && data.version > currentVer) {
                     const b = document.getElementById('btn-version');
-                    b.innerText = "🚀 升级 v" + data.version;
+                    b.innerText = "升级 v" + data.version;
                     b.style.color = "#ffaa00";
                     b.style.fontWeight = "bold";
                     b.onclick = () => openURL("https://github.com/peelfig/LeeSinMotion/releases/latest");
