@@ -74,13 +74,13 @@
 
         .footer {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             margin-top: 10px;
             align-items: center;
         }
 
-        /* Version Label / Update Button */
-        #btn-help {
+        /* Footer Buttons */
+        .footer-btn {
             font-size: 11px;
             color: #666;
             background: none;
@@ -91,8 +91,20 @@
             transition: color 0.2s;
         }
 
-        #btn-help:hover {
+        .footer-btn:hover {
             color: #999;
+        }
+
+        /* Website Icon/Text Style */
+        #btn-web {
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        #btn-web:hover {
+            color: #ccc;
         }
     </style>
 </head>
@@ -109,7 +121,8 @@
     <textarea id="output" readonly>请打开一个合成</textarea>
 
     <div class="footer">
-        <button id="btn-help">v3.5.4 CEP</button>
+        <button id="btn-web" class="footer-btn">🔗 访问官网</button>
+        <button id="btn-version" class="footer-btn">v3.5.4 CEP</button>
     </div>
 
     <script src="CSInterface.js"></script>
@@ -137,11 +150,13 @@
         document.getElementById('btn-layer').onclick = () => run('getLayerSpec()');
         document.getElementById('btn-comp').onclick = () => run('getCompSpec()');
 
-        document.getElementById('btn-help').onclick = () => {
-            // Default behavior: Do nothing or go to site? 
-            // If it's just version label, maybe do nothing unless update available.
-            // But let's keep it as a link to site for consistency.
+        document.getElementById('btn-web').onclick = () => {
             openURL("https://leesin.peelg.com/");
+        };
+
+        // Version button also goes to releases if clicked, but initially just label
+        document.getElementById('btn-version').onclick = () => {
+            // Optional: also go to site or just do nothing
         };
 
         function run(script) {
@@ -156,7 +171,7 @@
             .then(res => res.json())
             .then(data => {
                 if (data.version && data.version > currentVer) {
-                    const b = document.getElementById('btn-help');
+                    const b = document.getElementById('btn-version');
                     b.innerText = "🚀 升级 v" + data.version;
                     b.style.color = "#ffaa00";
                     b.style.fontWeight = "bold";
