@@ -321,7 +321,8 @@ function parseSpecText(specObj, markdown) {
     for (var i = 0; i < specObj.layers.length; i++) {
         var layer = specObj.layers[i];
         str += (markdown) ? '\n' : '';
-        str += h2 + layer.name;
+        var prefix = (layer.index) ? "Layer " + layer.index + " - " : "";
+        str += h2 + prefix + layer.name;
         if (layer.anchorPoint) {
             str += '\n';
             str += (markdown) ? "Anchor: " + layer.anchorPoint : "[Anchor: " + layer.anchorPoint + "]";
@@ -332,7 +333,9 @@ function parseSpecText(specObj, markdown) {
             var val = getVal(prop.value);
             if (!val || val === '' || val === ' ') continue;
 
-            str += "\n- " + prop.name + ": " + val;
+            str += "\n- " + prop.name;
+            if (val.indexOf('\n') === 0) str += val; // If val starts with newline, just append
+            else str += "\n  " + val; // If val is inline, force a newline with indentation
             str += propLine + "Start: " + timeToMs(prop.delay);
             str += propLine + "Duration: " + timeToMs(prop.duration);
             str += propLine + getCubic(prop.ease) + "\n";
@@ -430,7 +433,7 @@ $.global.getSingleKeySpec = function () {
 }
 
 function scanLayer(layer, silent) {
-    var layerSpec = { name: layer.name, props: [] };
+    var layerSpec = { name: layer.name, index: layer.index, props: [] };
 
     function crawlProps(group) {
         for (var i = 1; i <= group.numProperties; i++) {
@@ -497,7 +500,7 @@ $.global.getCompSpec = function () {
             }
         }
         if (allLayerSpecs.length === 0) return "合成中没有找到任何关键帧数据";
-        allLayerSpecs.sort(function (a, b) { return a.startTime - b.startTime; });
+        // allLayerSpecs.sort(function (a, b) { return a.startTime - b.startTime; }); // REMOVED: Keep layer order
 
         var spec = {
             compName: thisComp.name + " (全合成动效剧本)",

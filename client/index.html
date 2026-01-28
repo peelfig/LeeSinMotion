@@ -7,21 +7,16 @@
     <title>LeeSinMotion</title>
     <style>
         :root {
-            --bg: #0d0d0d;
-            --panel: #161616;
-            --border: #2a2a2a;
-            --accent: #3b82f6;
-            --accent-hover: #60a5fa;
-            --text-main: #e5e5e5;
-            --text-dim: #888888;
-            --code-bg: #111111;
-            --success: #10b981;
+            --bg: #1e1e1e;
+            --panel: #252526;
+            --border: #333;
+            --code-bg: #1e1e1e;
         }
 
         body {
             background: var(--bg);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #d4d4d4;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 16px;
             height: 100vh;
@@ -42,7 +37,7 @@
         .btn {
             background: var(--panel);
             border: 1px solid var(--border);
-            color: var(--text-main);
+            color: #ccc;
             padding: 12px 0;
             font-size: 12px;
             font-weight: 500;
@@ -56,15 +51,16 @@
         }
 
         .btn:hover {
-            background: #222;
-            border-color: #444;
+            background: #2d2d2d;
+            border-color: #555;
             transform: translateY(-1px);
+            color: #fff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .btn:active {
             transform: translateY(0);
-            background: #111;
+            background: #222;
         }
 
         .editor-container {
@@ -78,70 +74,25 @@
             overflow: hidden;
         }
 
-        .editor-container:focus-within {
-            border-color: #444;
-        }
-
-        textarea {
+        #code-view {
             flex: 1;
             background: transparent;
-            border: none;
             color: #d4d4d4;
-            font-family: "JetBrains Mono", "Fira Code", "Menlo", "Monaco", "Consolas", monospace;
-            font-size: 12px;
+            font-family: "JetBrains Mono", "Menlo", monospace;
+            font-size: 13px;
             line-height: 1.6;
             padding: 16px;
-            resize: none;
             outline: none;
-
-            /* --- Auto Wrap Settings --- */
             white-space: pre-wrap;
-            /* Auto wrap enabled */
             word-wrap: break-word;
-            /* Break long words if necessary */
-            overflow-x: hidden;
-            /* Hide horizontal scrollbar */
             overflow-y: auto;
+            user-select: text;
+            -webkit-user-select: text;
         }
 
-        .floating-actions {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 6px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .editor-container:hover .floating-actions {
-            opacity: 1;
-        }
-
-        .icon-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: #ccc;
-            width: 28px;
-            height: 28px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(4px);
-            transition: background 0.2s;
-        }
-
-        .icon-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-        }
-
-        .icon-btn svg {
-            width: 14px;
-            height: 14px;
-            fill: currentColor;
+        .text-dim {
+            color: #666;
+            font-style: italic;
         }
 
         .footer {
@@ -154,7 +105,7 @@
 
         .footer-link {
             font-size: 11px;
-            color: var(--text-dim);
+            color: #666;
             background: none;
             border: none;
             cursor: pointer;
@@ -167,12 +118,7 @@
         }
 
         .footer-link:hover {
-            color: var(--text-main);
-        }
-
-        .version-badge {
-            font-family: "JetBrains Mono", monospace;
-            opacity: 0.6;
+            color: #ccc;
         }
 
         .toast {
@@ -180,15 +126,15 @@
             bottom: 50px;
             left: 50%;
             transform: translateX(-50%) translateY(20px);
-            background: var(--text-main);
-            color: var(--bg);
+            background: #fff;
+            color: #000;
             padding: 8px 16px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             z-index: 100;
         }
@@ -196,6 +142,58 @@
         .toast.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
+        }
+
+        /* Floating Actions - Pill Buttons */
+        .floating-actions {
+            position: absolute;
+            top: 12px;
+            right: 24px;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+
+        .editor-container:hover .floating-actions {
+            opacity: 1;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #ddd;
+            height: 28px;
+            padding: 0 10px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+            font-size: 11px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .icon-btn:active {
+            transform: translateY(0);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .icon-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
         }
 
         ::-webkit-scrollbar {
@@ -258,19 +256,22 @@
     </div>
 
     <div class="editor-container">
-        <textarea id="output" spellcheck="false" placeholder="// 等待指令..."></textarea>
+        <!-- Pure Text Output -->
+        <div id="code-view"><span class="text-dim">// Ready.</span></div>
 
         <div class="floating-actions">
-            <button class="icon-btn" id="btn-copy" title="复制 (Copy)">
+            <button class="icon-btn" id="btn-copy" title="Copy to clipboard">
                 <svg viewBox="0 0 24 24">
                     <path d="M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2z" />
                     <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                 </svg>
+                复制
             </button>
-            <button class="icon-btn" id="btn-clear" title="清空 (Clear)">
+            <button class="icon-btn" id="btn-clear" title="Clear console">
                 <svg viewBox="0 0 24 24">
                     <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
                 </svg>
+                清空
             </button>
         </div>
     </div>
@@ -292,76 +293,57 @@
     <script src="CSInterface.js"></script>
     <script>
         const cs = new CSInterface();
-        const output = document.getElementById('output');
+        const codeView = document.getElementById('code-view');
         const toast = document.getElementById('toast');
+        let rawContent = "";
 
+        // ... (Keep openURL and boilerplate) ...
         function openURL(url) {
-            if (window.cep && window.cep.util) {
-                window.cep.util.openURLInDefaultBrowser(url);
-            } else if (cs.openURLInDefaultBrowser) {
-                cs.openURLInDefaultBrowser(url);
-            } else {
-                try {
-                    const cmd = (navigator.platform.indexOf('Mac') >= 0) ? `open "${url}"` : `start "" "${url}"`;
-                    window.cep.process.createProcess('/bin/sh', '-c', cmd);
-                } catch (e) {
-                    output.value = "无法打开链接: " + url;
-                }
-            }
+            if (window.cep && window.cep.util) { window.cep.util.openURLInDefaultBrowser(url); }
+            else if (cs.openURLInDefaultBrowser) { cs.openURLInDefaultBrowser(url); }
+            else { try { const cmd = (navigator.platform.indexOf('Mac') >= 0) ? `open "${url}"` : `start "" "${url}"`; window.cep.process.createProcess('/bin/sh', '-c', cmd); } catch (e) { } }
         }
 
+        // --- Pure Text Mode (Safe & Stable) ---
         function run(script) {
-            output.style.opacity = "0.5";
+            codeView.style.opacity = "0.5";
             cs.evalScript(script, (res) => {
-                output.style.opacity = "1";
+                codeView.style.opacity = "1";
+                rawContent = res;
+
                 if (res.indexOf("Error") !== -1 || res.indexOf("请") !== -1) {
-                    output.value = res;
+                    codeView.innerHTML = `<span class="text-dim">${res}</span>`;
                 } else {
-                    output.value = res;
+                    codeView.innerText = res;
                 }
             });
         }
 
-        function showToast(msg) {
-            toast.textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
-        }
-
+        function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
         document.getElementById('btn-extract').onclick = () => run('getKeysSpec()');
         document.getElementById('btn-single').onclick = () => run('getSingleKeySpec()');
         document.getElementById('btn-layer').onclick = () => run('getLayerSpec()');
         document.getElementById('btn-comp').onclick = () => run('getCompSpec()');
 
         document.getElementById('btn-copy').onclick = () => {
-            if (!output.value) return;
-            output.select();
+            if (!rawContent) return;
+            const el = document.createElement('textarea');
+            el.value = rawContent;
+            document.body.appendChild(el);
+            el.select();
             document.execCommand('copy');
-            window.getSelection().removeAllRanges();
+            document.body.removeChild(el);
             showToast("已复制");
         };
 
         document.getElementById('btn-clear').onclick = () => {
-            output.value = "";
-            output.focus();
+            rawContent = "";
+            codeView.innerHTML = '<span class="text-dim">// Ready.</span>';
         };
 
         document.getElementById('btn-web').onclick = () => openURL("https://leesin.peelg.com/");
-
-        const currentVer = "3.5.4";
-        const btnVer = document.getElementById('btn-version');
-        btnVer.textContent = "v" + currentVer;
-
-        fetch("https://raw.githubusercontent.com/peelfig/LeeSinMotion/main/version.json")
-            .then(res => res.json())
-            .then(data => {
-                if (data.version && data.version > currentVer) {
-                    btnVer.innerHTML = `<span style="color:#d97706">●</span> 升级 v${data.version}`;
-                    btnVer.style.color = "#fbbf24";
-                    btnVer.style.fontWeight = "600";
-                    btnVer.onclick = () => openURL("https://github.com/peelfig/LeeSinMotion/releases/latest");
-                }
-            }).catch(e => { });
+        const currentVer = "3.5.4"; const btnVer = document.getElementById('btn-version'); btnVer.textContent = "v" + currentVer;
+        fetch("https://raw.githubusercontent.com/peelfig/LeeSinMotion/main/version.json").then(res => res.json()).then(data => { if (data.version && data.version > currentVer) { btnVer.innerHTML = `<span style="color:#d97706">●</span> 升级 v${data.version}`; btnVer.style.color = "#fbbf24"; btnVer.style.fontWeight = "600"; btnVer.onclick = () => openURL("https://github.com/peelfig/LeeSinMotion/releases/latest"); } }).catch(e => { });
 
     </script>
 </body>
