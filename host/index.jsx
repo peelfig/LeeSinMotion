@@ -1,140 +1,510 @@
 /**
- * LeeSinMotion CEP Host Engine - v3.5.4 (Complete)
+ * LeeSinMotion CEP Host - v3.5.4 Exact Source Port
+ * Include Fix: Anchor Point detection robustness
  */
+var scriptVersion = "3.5.4";
+var thisComp;
 
 // ==========================================
-// UTILITIES
+// Easing Library
 // ==========================================
+var easeLib = {
+    "Default (默认)": [0.25, 0.1, 0.25, 1.0],
+    "EaseOut (缓出)": [0.0, 0.0, 0.58, 1.0],
+    "EaseIn (缓入)": [0.42, 0.0, 1.0, 1.0],
+    "EaseInEaseOut (缓入缓出)": [0.42, 0.0, 0.58, 1.0],
+    "Linear (线性)": [0.0, 0.0, 1.0, 1.0],
+    "Emphasized Decelerate (强调减速)": [0.05, 0.7, 0.1, 1.0],
+    "Emphasized Accelerate (强调加速)": [0.3, 0.0, 0.8, 0.15],
+    "Standard (标准)": [0.2, 0.0, 0.0, 1.0],
+    "Standard Decelerate (标准减速)": [0.0, 0.0, 0.0, 1.0],
+    "Standard Accelerate (标准加速)": [0.3, 0.0, 1.0, 1.0],
+    "Hold": [0.0, 0.0, 0.0, 0.0]
+};
 
-function round(num) {
-    if (typeof num !== 'number') return num;
-    var rounded = num.toFixed(2);
-    return rounded === '-0.00' ? '0.00' : rounded;
-}
-
-function timeToMs(time) {
-    return Math.round(time * 1000) + "ms";
-}
-
+// ==========================================
+// Utilities
+// ==========================================
 function setComp() {
     thisComp = app.project.activeItem;
     return (thisComp && thisComp instanceof CompItem);
 }
 
-// ==========================================
-// CORE EXPORTS
-// ==========================================
+function timeToMs(time) { return Math.round(time * 1000) + 'ms'; }
 
-// 1. 获取选中的关键帧数据 (JSON)
-$.global.getKeysSpec = function () {
+function round(value, opt_decimals) {
     try {
-        if (!setComp()) return JSON.stringify({ error: "请打开一个合成" });
+        var decimals = opt_decimals || 2;
+        return parseFloat(value.toFixed(decimals));
+    } catch (e) {
+        return value;
+    }
+}
 
-        var thisComp = app.project.activeItem;
-        var selProps = thisComp.selectedProperties;
+function capitalizeFirstLetter(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
 
-        if (!selProps || selProps.length === 0) return JSON.stringify({ error: "请先选中关键帧属性" });
+// ==========================================
+// Core Extraction Logic
+// ==========================================
 
-        var spec = {
-            compName: thisComp.name,
-            totalDur: 0,
-            layers: []
-        };
+function getSelKeys() {
+    try {
+        var selKeyList = [];
+        var props = thisComp.selectedProperties;
+        for (var i = 0; i < props.length; i++) {
+            var prop = props[i];
+            if (!prop.canVaryOverTime) continue;
+            var selKeys = prop.selectedKeys;
+            if (selKeys.length < 2) continue;
+            selKeyList.push({ prop: prop, keys: selKeys });
+        }
+        return selKeyList;
+    } catch (error) { return []; }
+}
 
-        var activeLayer = null;
-        for (var i = 0; i < selProps.length; i++) {
-            var prop = selProps[i];
-            if (prop.canVaryOverTime && prop.selectedKeys.length > 1) {
-                var layer = prop.propertyGroup(prop.propertyDepth);
-                if (activeLayer !== layer) {
-                    activeLayer = layer;
-                    spec.layers.push({ name: layer.name, props: [] });
-                }
-
-                var keys = prop.selectedKeys;
-                var duration = prop.keyTime(keys[keys.length - 1]) - prop.keyTime(keys[0]);
-
-                spec.layers[spec.layers.length - 1].props.push({
-                    name: prop.name,
-                    value: {
-                        start: prop.keyValue(keys[0]),
-                        end: prop.keyValue(keys[keys.length - 1])
-                    },
-                    duration: Math.round(duration * 1000),
-                    delay: prop.keyTime(keys[0]),
-                    ease: [0.4, 0, 0.2, 1] // Keep it simple for now
-                });
+function getKeyRange() {
+    var selKeys = getSelKeys();
+    if (selKeys.length < 1) { return [thisComp.time, thisComp.time + 1]; }
+    else {
+        var firstKeyTime = 9999999;
+        var lastKeyTime = -9999999;
+        for (var i = 0; i < selKeys.length; i++) {
+            var actKey = selKeys[i];
+            var prop = actKey.prop;
+            var keys = actKey.keys;
+            for (var j = 0; j < keys.length; j++) {
+                var keyTime = prop.keyTime(keys[j]);
+                firstKeyTime = Math.min(firstKeyTime, keyTime);
+                lastKeyTime = Math.max(lastKeyTime, keyTime);
             }
         }
-        return JSON.stringify(spec);
-    } catch (e) {
-        return JSON.stringify({ error: e.toString() });
+        return [firstKeyTime, lastKeyTime];
     }
+}
+
+function getPropSpec(actKey) {
+    var prop = actKey.prop;
+    var keys = actKey.keys;
+    var duration = prop.keyTime(keys[1]) - prop.keyTime(keys[0]);
+
+    var valChange = { matchName: prop.matchName, start: null, end: null };
+    if (prop.propertyValueType !== PropertyValueType.NO_VALUE) {
+        valChange.start = prop.keyValue(keys[0]);
+        valChange.end = prop.keyValue(keys[1]);
+    }
+    if (prop.matchName.match(/Shape/)) { valChange.start = null; valChange.end = null; }
+
+    var layer = prop.propertyGroup(prop.propertyDepth);
+    if (!layer.threeDLayer && valChange.start instanceof Array && valChange.start.length > 2) {
+        try { valChange.start = valChange.start.slice(0, 2); valChange.end = valChange.end.slice(0, 2); } catch (e) { }
+    }
+
+    var startVal, endVal;
+    try { startVal = prop.keyValue(keys[0]); endVal = prop.keyValue(keys[1]); } catch (e) { startVal = 0; endVal = 1; }
+
+    var x1 = 5, y1 = 5, x2 = 5, y2 = 5;
+
+    if (prop.keyOutInterpolationType(keys[0]) == KeyframeInterpolationType.LINEAR &&
+        prop.keyInInterpolationType(keys[1]) == KeyframeInterpolationType.LINEAR) {
+        x1 = 0; y1 = 0; x2 = 1; y2 = 1;
+    } else if (prop.keyOutInterpolationType(keys[0]) == KeyframeInterpolationType.HOLD) {
+        x1 = 0; y1 = 0; x2 = 0; y2 = 0;
+    } else {
+        var change;
+        if (startVal instanceof Array && startVal.length > 1) {
+            if (prop.matchName.split('Size').length > 1 || prop.matchName.split('Scale').length > 1) {
+                change = endVal[0] - startVal[0];
+            } else {
+                change = Math.sqrt(Math.pow(endVal[0] - startVal[0], 2) + Math.pow(endVal[1] - startVal[1], 2));
+            }
+        } else {
+            if (isNaN(endVal)) change = 1;
+            else change = endVal - startVal;
+        }
+
+        var startOutEase = prop.keyOutTemporalEase(keys[0])[0];
+        var endInEase = prop.keyInTemporalEase(keys[1])[0];
+        var keyOutSpeed = startOutEase.speed;
+        var keyInSpeed = endInEase.speed;
+
+        x1 = startOutEase.influence / 100;
+        y1 = (keyOutSpeed * x1) * (duration / (change || 0.0000000001));
+        x2 = 1 - endInEase.influence / 100;
+        y2 = 1 + (keyInSpeed * (x2 - 1)) * (duration / (change || 0.0000000001));
+
+        // Safety clamps from source or common sense
+        // Source lines 773-775:
+        // if (Math.abs(y1) < 0.01) y1 = 0;
+        // if (Math.abs(y2 - 1) < 0.01) y2 = 1;
+        // if (Math.abs(y2) < 0.01) y2 = 0;
+        if (Math.abs(y1) < 0.01) y1 = 0;
+        if (Math.abs(y2 - 1) < 0.01) y2 = 1;
+        if (Math.abs(y2) < 0.01) y2 = 0;
+
+        if (prop.keyOutInterpolationType(keys[0]) == KeyframeInterpolationType.LINEAR) {
+            x1 = 0.17; y1 = 0.17;
+        } else if (prop.keyInInterpolationType(keys[1]) == KeyframeInterpolationType.LINEAR) {
+            x2 = 0.83; y2 = 0.83;
+        }
+    }
+
+    return {
+        value: valChange,
+        duration: duration,
+        ease: [x1, y1, x2, y2],
+        delay: prop.keyTime(keys[0])
+    };
+}
+
+// ==========================================
+// Anchor Logic Helper
+// ==========================================
+function getAnchorLabel(layerObj) {
+    if (!layerObj) return null;
+    try {
+        // Try/Catch block around sourceRectAtTime is crucial
+        var rect;
+        try {
+            rect = layerObj.sourceRectAtTime(thisComp.time, false);
+        } catch (e) { return null; } // Fails for cameras/lights etc
+
+        var apVal = layerObj.anchorPoint.value;
+        var w = rect.width; var h = rect.height;
+        var ax = apVal[0] - rect.left;
+        var ay = apVal[1] - rect.top;
+        var tol = 2;
+        var apLabel = "";
+
+        var isL = Math.abs(ax) < tol;
+        var isC = Math.abs(ax - w / 2) < tol;
+        var isR = Math.abs(ax - w) < tol;
+        var isT = Math.abs(ay) < tol;
+        var isM = Math.abs(ay - h / 2) < tol;
+        var isB = Math.abs(ay - h) < tol;
+
+        if (isT && isL) apLabel = "Top-Left (左上)";
+        else if (isT && isC) apLabel = "Top-Center (中上)";
+        else if (isT && isR) apLabel = "Top-Right (右上)";
+        else if (isM && isL) apLabel = "Middle-Left (左中)";
+        else if (isM && isC) apLabel = "Center (居中)";
+        else if (isM && isR) apLabel = "Middle-Right (右中)";
+        else if (isB && isL) apLabel = "Bottom-Left (左下)";
+        else if (isB && isC) apLabel = "Bottom-Center (中下)";
+        else if (isB && isR) apLabel = "Bottom-Right (右下)";
+        else apLabel = "Custom (" + round(apVal[0]) + ", " + round(apVal[1]) + ")";
+
+        return apLabel;
+    } catch (e) { return null; }
+}
+
+
+// ==========================================
+// Formatting Logic
+// ==========================================
+
+function getCubic(arr) {
+    var val = '';
+    var tokenMatch = null;
+    var tolerance = 0.05;
+
+    for (var key in easeLib) {
+        if (easeLib.hasOwnProperty(key)) {
+            var cubicBez = easeLib[key];
+            var match = true;
+            for (var i = 0; i < 4; i++) {
+                if (Math.abs(cubicBez[i] - arr[i]) > tolerance) { match = false; break; }
+            }
+            if (match) { tokenMatch = { name: key, cubic: cubicBez }; break; }
+        }
+    }
+
+    function f(n) { return n.toFixed(2); }
+
+    if (tokenMatch) {
+        var c = tokenMatch.cubic;
+        val = tokenMatch.name + ": (" + f(c[0]) + ", " + f(c[1]) + ", " + f(c[2]) + ", " + f(c[3]) + ")";
+    } else {
+        val = "(" + f(arr[0]) + ", " + f(arr[1]) + ", " + f(arr[2]) + ", " + f(arr[3]) + ")";
+    }
+    return val;
+}
+
+function getVal(valObj) {
+    var str = '';
+    var labels = ['X', 'Y', 'Z', 'W'];
+    var isPosition = valObj.matchName.match(/Position/) != null;
+    var isAnchor = valObj.matchName.match(/Anchor/) != null;
+
+    var formatSingle = function (start, end, unit, showDelta, axisIndex) {
+        if (unit === undefined) unit = '';
+        if (showDelta === undefined) showDelta = true;
+        if (axisIndex === undefined) axisIndex = -1;
+
+        var s = round(start);
+        var e = round(end);
+        var roundedDelta = Math.round(end - start);
+
+        if (roundedDelta === 0) return null;
+
+        var deltaStr = '';
+        if (showDelta) {
+            if ((isPosition || isAnchor) && axisIndex >= 0) {
+                var arrow = '';
+                if (axisIndex === 0) {
+                    if (isPosition) arrow = roundedDelta > 0 ? ' →' : ' ←';
+                    if (isAnchor) arrow = roundedDelta > 0 ? ' ←' : ' →';
+                }
+                if (axisIndex === 1) {
+                    if (isPosition) arrow = roundedDelta > 0 ? ' ↓' : ' ↑';
+                    if (isAnchor) arrow = roundedDelta > 0 ? ' ↑' : ' ↓';
+                }
+                deltaStr = " (" + Math.abs(roundedDelta) + unit + arrow + ")";
+            } else {
+                deltaStr = " (" + Math.abs(roundedDelta) + unit + ")";
+            }
+        }
+        return s + " → " + e + unit + deltaStr;
+    };
+
+    var isScale = valObj.matchName.match(/Scale/i) != null;
+    var toVal = function (v) { return v; };
+    var unit = (isScale || valObj.matchName.match(/Opacity/i)) ? '%' : ((isPosition || isAnchor) ? 'px' : (valObj.matchName.match(/Rotate|Angle/i) ? 'º' : ''));
+
+    if (valObj.matchName.match(/Color/i) != null) {
+        return "Color Change";
+    } else if (valObj.matchName.match(/Shape/i) != null) {
+        return '';
+    } else if (valObj.start instanceof Array && valObj.start.length > 1) {
+        var isUniform = true;
+        for (var i = 1; i < valObj.start.length; i++) {
+            if (Math.abs(valObj.start[i] - valObj.start[0]) > 0.01 || Math.abs(valObj.end[i] - valObj.end[0]) > 0.01) {
+                isUniform = false;
+                break;
+            }
+        }
+        if (isUniform) {
+            str = formatSingle(toVal(valObj.start[0]), toVal(valObj.end[0]), unit, true, (isPosition || isAnchor) ? 0 : -1) || '';
+        } else {
+            var parts = [];
+            for (var i = 0; i < valObj.start.length; i++) {
+                var res = formatSingle(toVal(valObj.start[i]), toVal(valObj.end[i]), unit, true, (isPosition || isAnchor) ? i : -1);
+                if (res) parts.push(labels[i] + ": " + res);
+            }
+            str = parts.length > 0 ? ('\n  ' + parts.join('\n  ')) : '';
+        }
+    } else {
+        var axisIdx = -1;
+        if (isPosition || isAnchor) {
+            if (valObj.matchName.match(/_0|X/)) axisIdx = 0;
+            else if (valObj.matchName.match(/_1|Y/)) axisIdx = 1;
+            else if (valObj.matchName.match(/_2|Z/)) axisIdx = 2;
+            else axisIdx = 0;
+        }
+        str = formatSingle(toVal(valObj.start), toVal(valObj.end), unit, true, axisIdx) || '';
+    }
+    return str;
+}
+
+
+function parseSpecText(specObj, markdown) {
+    if (!specObj) return '';
+    var lineBreak = (markdown) ? '\n\n' : '\n';
+    var h1 = (markdown) ? '# ' : '';
+    var h2 = (markdown) ? '## ' : '\n';
+    var propLine = (markdown) ? '\n    ' : '\n  ';
+
+    var str = '';
+    str = h1 + specObj.compName;
+    str += lineBreak;
+    if (specObj.totalDur) str += "Total duration: " + timeToMs(specObj.totalDur) + "\n";
+
+    for (var i = 0; i < specObj.layers.length; i++) {
+        var layer = specObj.layers[i];
+        str += (markdown) ? '\n' : '';
+        str += h2 + layer.name;
+        if (layer.anchorPoint) {
+            str += '\n';
+            str += (markdown) ? "Anchor: " + layer.anchorPoint : "[Anchor: " + layer.anchorPoint + "]";
+        }
+
+        for (var j = 0; j < layer.props.length; j++) {
+            var prop = layer.props[j];
+            var val = getVal(prop.value);
+            if (!val || val === '' || val === ' ') continue;
+
+            str += "\n- " + prop.name + ": " + val;
+            str += propLine + "Start: " + timeToMs(prop.delay);
+            str += propLine + "Duration: " + timeToMs(prop.duration);
+            str += propLine + getCubic(prop.ease) + "\n";
+        }
+    }
+    return str;
+}
+
+// ==========================================
+// EXPOSED API
+// ==========================================
+
+$.global.getKeysSpec = function () {
+    try {
+        if (!setComp()) return "请打开一个合成";
+        var selProps = thisComp.selectedProperties;
+        if (selProps.length < 1) return "请选中关键帧属性";
+
+        var spec = { compName: thisComp.name, totalDur: 0, layers: [] };
+        var keyRange = getKeyRange();
+        spec.totalDur = keyRange[1] - keyRange[0];
+
+        var selKeys = getSelKeys(); // [{prop, keys:[]}, ...]
+        if (selKeys.length < 1) return "请先在时间轴中选择两个关键帧";
+
+        var activeLayer = null;
+
+        for (var i = 0; i < selKeys.length; i++) {
+            var actKey = selKeys[i];
+            var prop = actKey.prop;
+            var keys = actKey.keys;
+            var layer = prop.propertyGroup(prop.propertyDepth);
+
+            if (activeLayer != layer) {
+                activeLayer = layer;
+                spec.layers.push({
+                    name: layer.name,
+                    _layerObj: layer, // Hack: Storing reference to real layer object for anchor lookup
+                    props: []
+                });
+            }
+
+            // Source restriction: Only first pair
+            var propSpec = getPropSpec({ prop: prop, keys: [keys[0], keys[1]] });
+
+            var nameOverride = null;
+            if (prop.matchName.match(/Control/) != null) nameOverride = prop.propertyGroup(1).name;
+
+            spec.layers[spec.layers.length - 1].props.push({
+                name: nameOverride || prop.name,
+                value: propSpec.value,
+                duration: propSpec.duration,
+                ease: propSpec.ease,
+                delay: propSpec.delay
+            });
+        }
+
+        // Anchor Logic using stored layer reference - Much more robust
+        for (var x = 0; x < spec.layers.length; x++) {
+            var l = spec.layers[x];
+            // Use our stored reference if available, fallback to name search
+            var layerObj = l._layerObj;
+            if (!layerObj) {
+                for (var L = 1; L <= thisComp.numLayers; L++) {
+                    if (thisComp.layer(L).name === l.name) { layerObj = thisComp.layer(L); break; }
+                }
+            }
+            if (layerObj) {
+                var label = getAnchorLabel(layerObj);
+                if (label) l.anchorPoint = label;
+            }
+            delete l._layerObj; // Clean up before sending to JSON parser if we were using JSON
+        }
+
+        return parseSpecText(spec, false);
+    } catch (e) { return "Error: " + e.toString(); }
 };
 
-// 2. 获取全合成数据 (JSON)
-$.global.getCompSpecJSON = function () {
+$.global.getSingleKeySpec = function () {
     try {
-        if (!setComp()) return JSON.stringify({ error: "No Active Comp" });
-        var thisComp = app.project.activeItem;
+        if (!setComp()) return "请打开一个合成";
+        var props = thisComp.selectedProperties;
+        for (var i = 0; i < props.length; i++) {
+            var prop = props[i];
+            if (!prop.canVaryOverTime) continue;
+            var selKeys = prop.selectedKeys;
+            if (selKeys.length === 1) {
+                var layer = prop.propertyGroup(prop.propertyDepth);
+                var t = prop.keyTime(selKeys[0]);
+                return layer.name + " > " + prop.name + ": " + timeToMs(t);
+            }
+        }
+        return "请选中一个关键帧";
+    } catch (e) { return "Error: " + e.toString(); }
+}
+
+function scanLayer(layer, silent) {
+    var layerSpec = { name: layer.name, props: [] };
+
+    function crawlProps(group) {
+        for (var i = 1; i <= group.numProperties; i++) {
+            var prop = group.property(i);
+            if (prop.propertyType === PropertyType.PROPERTY) {
+                if (prop.canVaryOverTime && prop.numKeys > 1) {
+                    for (var k = 1; k < prop.numKeys; k++) {
+                        var actKey = { prop: prop, keys: [k, k + 1] };
+                        var propSpec = getPropSpec(actKey);
+                        var nameOverride = null;
+                        if (prop.matchName.match(/Control/) != null) nameOverride = prop.propertyGroup(1).name;
+
+                        layerSpec.props.push({
+                            name: (nameOverride || prop.name) + " [" + k + "-" + (k + 1) + "]",
+                            value: propSpec.value,
+                            duration: propSpec.duration,
+                            ease: propSpec.ease,
+                            delay: prop.keyTime(k)
+                        });
+                    }
+                }
+            } else if (prop.propertyType === PropertyType.INDEXED_GROUP || prop.propertyType === PropertyType.NAMED_GROUP) {
+                crawlProps(prop);
+            }
+        }
+    }
+    crawlProps(layer);
+
+    var apLabel = getAnchorLabel(layer);
+    if (apLabel) layerSpec.anchorPoint = apLabel;
+
+    layerSpec.props.sort(function (a, b) { return a.delay - b.delay; });
+    return layerSpec;
+}
+
+$.global.getLayerSpec = function () {
+    try {
+        if (!setComp()) return "请打开一个合成";
+        if (thisComp.selectedLayers.length === 0) return "请先选择一个图层";
+        var layer = thisComp.selectedLayers[0];
+        var layerData = scanLayer(layer);
+        if (!layerData || layerData.props.length === 0) return "该图层没有关键帧";
 
         var spec = {
             compName: thisComp.name,
             totalDur: thisComp.workAreaDuration,
-            layers: []
+            layers: [layerData]
         };
+        return parseSpecText(spec, false);
+    } catch (e) { return "Error: " + e.toString(); }
+}
 
+$.global.getCompSpec = function () {
+    try {
+        if (!setComp()) return "请打开一个合成";
+        var allLayerSpecs = [];
         for (var i = 1; i <= thisComp.numLayers; i++) {
             var layer = thisComp.layer(i);
-            if (!layer.enabled) continue;
-
-            var layerData = {
-                name: layer.name,
-                props: []
-            };
-
-            // Simplified scan for Transform properties
-            var transform = layer.transform;
-            if (transform) {
-                var propsToCheck = ["Position", "Scale", "Rotation", "Opacity"];
-                for (var p = 0; p < propsToCheck.length; p++) {
-                    var pName = propsToCheck[p];
-                    if (transform[pName] && transform[pName].numKeys > 1) {
-                        var prop = transform[pName];
-                        // Just take the first segment as a sample
-                        layerData.props.push({
-                            name: pName,
-                            duration: Math.round((prop.keyTime(2) - prop.keyTime(1)) * 1000),
-                            delay: prop.keyTime(1),
-                            ease: [0.17, 0.17, 0.83, 0.83]
-                        });
-                    }
-                }
-            }
-
-            if (layerData.props.length > 0) {
-                spec.layers.push(layerData);
+            var layerData = scanLayer(layer, true);
+            if (layerData && layerData.props.length > 0) {
+                var earliest = 999999;
+                for (var j = 0; j < layerData.props.length; j++) earliest = Math.min(earliest, layerData.props[j].delay);
+                allLayerSpecs.push({ data: layerData, startTime: earliest });
             }
         }
-        return JSON.stringify(spec);
-    } catch (e) {
-        return JSON.stringify({ error: e.toString() });
-    }
-};
+        if (allLayerSpecs.length === 0) return "合成中没有找到任何关键帧数据";
+        allLayerSpecs.sort(function (a, b) { return a.startTime - b.startTime; });
 
-// 3. 获取系统元数据（专门用于修复路径报错）
-$.global.getMetaInfo = function () {
-    try {
-        var desktopPath = Folder.desktop.fsName;
-        var os = $.os.indexOf("Windows") !== -1 ? "Windows" : "Mac";
-        var sep = os === "Windows" ? "\\" : "/";
-
-        return JSON.stringify({
-            desktop: desktopPath,
-            separator: sep,
-            os: os
-        });
-    } catch (e) {
-        return JSON.stringify({ error: "Meta info failed: " + e.toString() });
-    }
-};
+        var spec = {
+            compName: thisComp.name + " (全合成动效剧本)",
+            totalDur: thisComp.workAreaDuration,
+            layers: []
+        };
+        for (var k = 0; k < allLayerSpecs.length; k++) spec.layers.push(allLayerSpecs[k].data);
+        return parseSpecText(spec, false);
+    } catch (e) { return "Error: " + e.toString(); }
+}

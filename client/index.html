@@ -4,15 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LeeSinMotion LAB</title>
+    <title>LeeSinMotion</title>
     <style>
         :root {
-            --primary: #ff6a00;
-            --bg: #1a1c22;
-            --card-bg: #252830;
-            --text: #ffffff;
-            --text-dim: #9499a1;
-            --border: #3d424a;
+            --bg: #161616;
+            --panel: #1f1f1f;
+            --border: #333;
+            --text: #eee;
+            --text-dim: #888;
         }
 
         body {
@@ -20,246 +19,118 @@
             color: var(--text);
             font-family: -apple-system, sans-serif;
             margin: 0;
-            padding: 16px;
+            padding: 12px;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh;
             box-sizing: border-box;
+            user-select: none;
         }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        h1 {
-            margin: 0 0 12px 0;
-            font-size: 14px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .btn {
-            background: #ff6a00;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            padding: 10px;
-            width: 100%;
-            font-weight: 600;
+            background: #1a1a1a;
+            border: 1px solid var(--border);
+            color: #ccc;
+            padding: 8px 0;
+            font-size: 12px;
+            border-radius: 3px;
             cursor: pointer;
-            margin-bottom: 8px;
-            transition: opacity 0.2s;
+            transition: all 0.1s;
         }
 
         .btn:hover {
-            opacity: 0.9;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: wait;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #444;
-            color: #ccc;
-        }
-
-        .btn-outline:hover {
-            border-color: #666;
+            background: #2a2a2a;
             color: #fff;
+            border-color: #555;
         }
 
+        .btn:active {
+            background: #111;
+        }
+
+        /* Output Area - Increased height since tabs are gone */
         textarea {
             flex: 1;
-            background: #111;
-            border: 1px solid #333;
-            color: #0f0;
-            font-family: monospace;
-            padding: 10px;
+            background: #0b0b0b;
+            border: 1px solid var(--border);
+            color: #ddd;
+            font-family: "Menlo", monospace;
+            font-size: 11px;
+            padding: 8px;
             resize: none;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            font-size: 11px;
-        }
-
-        .status-bar {
-            font-size: 11px;
-            color: #ff6a00;
-            min-height: 14px;
-            margin-bottom: 8px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            outline: none;
+            border-radius: 3px;
+            line-height: 1.4;
+            white-space: pre-wrap;
         }
 
         .footer {
-            font-size: 10px;
-            color: #555;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            align-items: center;
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 11px;
+            background: #1a1a1a;
+            border: 1px solid var(--border);
+            color: #ccc;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .version {
+            font-size: 11px;
+            color: #666;
         }
     </style>
 </head>
 
 <body>
-    <div class="card">
-        <h1>Actions</h1>
-        <div id="status" class="status-bar">就绪</div>
-        <button id="btn-export" class="btn">🎨 可视化导出 (Beta)</button>
-        <button id="btn-extract" class="btn btn-outline">📋 提取选中片段 (JSON)</button>
+
+    <div class="btn-group">
+        <button class="btn" id="btn-extract">提取：选中片段</button>
+        <button class="btn" id="btn-single">提取：单帧时间</button>
+        <button class="btn" id="btn-layer">扫描：当前图层</button>
+        <button class="btn" id="btn-comp">扫描：当前预合成</button>
     </div>
 
-    <textarea id="output" placeholder="日志窗口..."></textarea>
-    <div class="footer">v3.5.4 CEP Engine</div>
+    <!-- Removed Tabs -->
+
+    <textarea id="output" readonly>请打开一个合成</textarea>
+
+    <div class="footer">
+        <div style="display:flex; gap:8px;">
+            <button class="btn-sm">新计数器</button>
+            <button class="btn-sm">✱</button>
+            <button class="btn-sm">最新版本</button>
+        </div>
+        <div class="version">v3.5.4 CEP</div>
+    </div>
 
     <script src="CSInterface.js"></script>
     <script>
-        const csInterface = new CSInterface();
+        const cs = new CSInterface();
 
-        // ==========================================
-        // 初始化 Node.js 模块
-        // ==========================================
-        let fs = null;
-        let path = null;
-        try {
-            fs = require('fs');
-            path = require('path');
-        } catch (e) {
-            console.error("Node.js require failed", e);
-        }
+        document.getElementById('btn-extract').onclick = () => run('getKeysSpec()');
+        document.getElementById('btn-single').onclick = () => run('getSingleKeySpec()');
+        document.getElementById('btn-layer').onclick = () => run('getLayerSpec()');
+        document.getElementById('btn-comp').onclick = () => run('getCompSpec()');
 
-        function log(msg) {
-            document.getElementById('status').innerText = msg;
-            console.log(msg);
-            const out = document.getElementById('output');
-            out.value = `[${new Date().toLocaleTimeString()}] ${msg}\n` + out.value;
-        }
-
-        // ============================
-        // 功能 1：提取选中片段 (JSON)
-        // ============================
-        document.getElementById('btn-extract').onclick = () => {
-            log("正在提取...");
-            csInterface.evalScript('getKeysSpec()', (res) => {
-                try {
-                    const data = JSON.parse(res);
-                    if (data.error) {
-                        log("❌ " + data.error);
-                        alert("提取失败：" + data.error);
-                    } else {
-                        log("✅ 提取成功");
-                        document.getElementById('output').value = JSON.stringify(data, null, 2);
-                    }
-                } catch (e) {
-                    log("❌ 解析错误: " + res.substring(0, 50));
-                }
+        function run(script) {
+            document.getElementById('output').value = "计算中...";
+            cs.evalScript(script, (res) => {
+                document.getElementById('output').value = res;
             });
-        };
-
-        // ============================
-        // 功能 2：可视化导出 (修复版)
-        // ============================
-        document.getElementById('btn-export').onclick = () => {
-            if (!fs) {
-                alert("错误: Node.js 模块加载失败。请确保 manifest.xml 开启了 Node 支持且是 CEP 扩展环境。");
-                return;
-            }
-
-            const btn = document.getElementById('btn-export');
-            btn.disabled = true;
-            btn.innerText = "⏳ 扫描合成中...";
-            log("正在扫描全合成...");
-
-            // 1. 获取数据
-            csInterface.evalScript('getCompSpecJSON()', (res) => {
-
-                try {
-                    const data = JSON.parse(res);
-                    if (data.error) throw new Error(data.error);
-                    if (!data.layers || data.layers.length === 0) throw new Error("合成中没有可导出的关键帧信息");
-
-                    // 2. 生成 HTML
-                    log("数据获取成功，生成 HTML...");
-                    const html = generateHTML(data);
-
-                    // 3. 获取桌面路径 (用于写入参照)
-                    csInterface.evalScript('getMetaInfo()', (metaRes) => {
-                        btn.disabled = false;
-                        btn.innerText = "🎨 可视化导出 (Beta)";
-
-                        try {
-                            const meta = JSON.parse(metaRes);
-                            let desktopPath = meta.desktop;
-
-                            // 修正桌面路径 (AE有时返回 /User/xxx，Node需要处理)
-                            // 最佳实践：如果 meta.desktop 包含 ~，替换为 os.homedir
-                            // 这里我们直接用 Node.js 的方式获取桌面，忽略 AE 返回的路径如果不靠谱
-                            const os = require('os');
-                            const homeDir = os.homedir();
-                            const targetBase = path.join(homeDir, "Desktop");
-
-                            const folderName = `LeeSinMotion_Export_${Date.now().toString().slice(-4)}`;
-                            const targetDir = path.join(targetBase, folderName);
-
-                            // 4. 原生 Node.js 写入
-                            if (!fs.existsSync(targetDir)) {
-                                fs.mkdirSync(targetDir, { recursive: true });
-                            }
-
-                            const htmlPath = path.join(targetDir, "index.html");
-                            fs.writeFileSync(htmlPath, html, 'utf8');
-
-                            log("✅ 成功! " + targetDir);
-
-                            // 打开目录
-                            window.cep.process.createProcess('/usr/bin/open', targetDir);
-
-                        } catch (e) {
-                            log("❌ 写入错误: " + e.message);
-                            alert("写入失败:\n" + e.message);
-                        }
-                    });
-
-                } catch (e) {
-                    btn.disabled = false;
-                    btn.innerText = "🎨 可视化导出 (Beta)";
-                    log("❌ " + e.message);
-                    alert("导出中断:\n" + e.message);
-                }
-            });
-        };
-
-        // 简易 HTML 生成器
-        function generateHTML(data) {
-            const layersHtml = data.layers.map(l => {
-                const props = l.props.map(p => {
-                    const width = (p.duration / (data.totalDur * 1000)) * 100;
-                    const left = (p.delay * 1000 / (data.totalDur * 1000)) * 100;
-                    return `<div style="margin:4px 0; font-size:10px; color:#aaa;">
-                        ${p.name} <span style="color:#666">(${Math.round(p.duration)}ms)</span>
-                        <div style="background:#333; height:6px; width:100%; position:relative; margin-top:2px;">
-                            <div style="position:absolute; left:${left}%; width:${width}%; height:100%; background:#ff6a00;"></div>
-                        </div>
-                    </div>`;
-                }).join('');
-                return `<div style="background:#222; padding:10px; margin-bottom:10px; border-radius:4px;">
-                    <strong style="color:#fff">${l.name}</strong>
-                    ${props}
-                </div>`;
-            }).join('');
-
-            return `<html><body style="background:#111; color:#ddd; font-family:sans-serif; padding:20px;">
-                <h2 style="color:#ff6a00">${data.compName}</h2>
-                <div>Total Duration: ${Math.round(data.totalDur * 1000)}ms</div>
-                <hr style="border-color:#333"/>
-                ${layersHtml}
-            </body></html>`;
         }
     </script>
 </body>
