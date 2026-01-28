@@ -422,7 +422,7 @@ $.global.getSingleKeySpec = function () {
             if (selKeys.length === 1) {
                 var layer = prop.propertyGroup(prop.propertyDepth);
                 var t = prop.keyTime(selKeys[0]);
-                return layer.name + " > " + prop.name + ": " + timeToMs(t);
+                return "[" + layer.name + "] " + prop.name + ": " + timeToMs(t);
             }
         }
         return "请选中一个关键帧";
@@ -526,13 +526,13 @@ function setTimeMarkers(layer, startTime, endTime) {
     layer.property("ADBE Marker").setValueAtTime(endTime, layer_marker2);
 }
 
-$.global.buildCounter = function() {
+$.global.buildCounter = function () {
     try {
         if (!setComp()) return "请打开一个合成";
         var keyRange = getKeyRange();
-        
+
         app.beginUndoGroup("New Counter");
-        
+
         var dynText = thisComp.layers.addText("Counter");
         dynText.name = "Counter";
         dynText.comment = "LeeSinMotion_data";
@@ -547,12 +547,12 @@ $.global.buildCounter = function() {
         dynText_TextDocument.applyStroke = false;
         dynText_TextDocument.justification = ParagraphJustification.LEFT_JUSTIFY;
         dynText_TextDocument.tracking = -30;
-        
+
         if (parseFloat(app.version) >= 13.2) {
-             dynText_TextDocument.verticalScale = 1;
-             dynText_TextDocument.horizontalScale = 1;
-             dynText_TextDocument.baselineShift = 0;
-             dynText_TextDocument.tsume = 0;
+            dynText_TextDocument.verticalScale = 1;
+            dynText_TextDocument.horizontalScale = 1;
+            dynText_TextDocument.baselineShift = 0;
+            dynText_TextDocument.tsume = 0;
         }
 
         dynText_TextProp.setValue(dynText_TextDocument);
@@ -568,18 +568,18 @@ $.global.buildCounter = function() {
         lineHeight.property(2).property("ADBE Text Line Spacing").setValue([0, manualLineHeight]);
 
         dynText.property("ADBE Transform Group").property("ADBE Position").setValue([100, 100]);
-        
+
         setTimeMarkers(dynText, keyRange[0], keyRange[1]);
         dynText.property("ADBE Text Properties").property("ADBE Text Document").expression = exp_counter;
-        
+
         app.endUndoGroup();
         return "计数器已创建";
-    } catch(e) { return "Error: " + e.toString(); }
+    } catch (e) { return "Error: " + e.toString(); }
 };
 
-$.global.openSettings = function() {
+$.global.openSettings = function () {
     var f = new Folder(configFolder);
-    if(!f.exists) f.create();
+    if (!f.exists) f.create();
     f.execute();
     return "Settings opened";
 };

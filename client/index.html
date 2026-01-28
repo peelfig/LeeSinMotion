@@ -7,126 +7,293 @@
     <title>LeeSinMotion</title>
     <style>
         :root {
-            --bg: #161616;
-            --panel: #1f1f1f;
-            --border: #333;
-            --text: #eee;
-            --text-dim: #888;
+            --bg: #0d0d0d;
+            --panel: #161616;
+            --border: #2a2a2a;
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+            --text-main: #e5e5e5;
+            --text-dim: #888888;
+            --code-bg: #111111;
+            --success: #10b981;
         }
 
         body {
             background: var(--bg);
-            color: var(--text);
-            font-family: -apple-system, sans-serif;
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 12px;
+            padding: 16px;
             height: 100vh;
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
             user-select: none;
-            cursor: default;
+            overflow: hidden;
         }
 
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 12px;
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
         }
 
         .btn {
-            background: #1a1a1a;
+            background: var(--panel);
             border: 1px solid var(--border);
-            color: #ccc;
-            padding: 8px 0;
+            color: var(--text-main);
+            padding: 12px 0;
             font-size: 12px;
-            border-radius: 3px;
+            font-weight: 500;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.1s;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
         .btn:hover {
-            background: #2a2a2a;
-            color: #fff;
-            border-color: #555;
+            background: #222;
+            border-color: #444;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .btn:active {
+            transform: translateY(0);
             background: #111;
         }
 
-        /* Output Area */
+        .editor-container {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--code-bg);
+            overflow: hidden;
+        }
+
+        .editor-container:focus-within {
+            border-color: #444;
+        }
+
         textarea {
             flex: 1;
-            background: #0b0b0b;
-            border: 1px solid var(--border);
-            color: #ddd;
-            font-family: "Menlo", monospace;
-            font-size: 11px;
-            padding: 8px;
+            background: transparent;
+            border: none;
+            color: #d4d4d4;
+            font-family: "JetBrains Mono", "Fira Code", "Menlo", "Monaco", "Consolas", monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            padding: 16px;
             resize: none;
             outline: none;
-            border-radius: 3px;
-            line-height: 1.4;
+
+            /* --- Auto Wrap Settings --- */
             white-space: pre-wrap;
+            /* Auto wrap enabled */
+            word-wrap: break-word;
+            /* Break long words if necessary */
+            overflow-x: hidden;
+            /* Hide horizontal scrollbar */
+            overflow-y: auto;
+        }
+
+        .floating-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .editor-container:hover .floating-actions {
+            opacity: 1;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #ccc;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            transition: background 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .icon-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
         }
 
         .footer {
             display: flex;
             justify-content: space-between;
-            margin-top: 10px;
+            margin-top: 12px;
             align-items: center;
+            padding: 0 4px;
         }
 
-        /* Footer Buttons */
-        .footer-btn {
+        .footer-link {
             font-size: 11px;
-            color: #666;
+            color: var(--text-dim);
             background: none;
             border: none;
             cursor: pointer;
             padding: 4px;
-            outline: none;
             transition: color 0.2s;
-        }
-
-        .footer-btn:hover {
-            color: #999;
-        }
-
-        #btn-web {
-            color: #888;
+            text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
 
-        #btn-web:hover {
-            color: #ccc;
+        .footer-link:hover {
+            color: var(--text-main);
+        }
+
+        .version-badge {
+            font-family: "JetBrains Mono", monospace;
+            opacity: 0.6;
+        }
+
+        .toast {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--text-main);
+            color: var(--bg);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="btn-group">
-        <button class="btn" id="btn-extract">提取：选中片段</button>
-        <button class="btn" id="btn-single">提取：单帧时间</button>
-        <button class="btn" id="btn-layer">扫描：当前图层</button>
-        <button class="btn" id="btn-comp">扫描：当前预合成</button>
+    <div class="action-grid">
+        <div class="btn" id="btn-extract" title="Extract selected keyframes">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 5h14v14H5z" />
+                <path d="M5 19l14-14" />
+            </svg>
+            提取片段
+        </div>
+        <div class="btn" id="btn-single" title="Extract single keyframe time">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+            </svg>
+            单帧时间
+        </div>
+        <div class="btn" id="btn-layer" title="Scan entire layer">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                <polyline points="2 17 12 22 22 17" />
+                <polyline points="2 12 12 17 22 12" />
+            </svg>
+            扫描图层
+        </div>
+        <div class="btn" id="btn-comp" title="Scan entire composition">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                <line x1="8" y1="21" x2="16" y2="21" />
+                <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+            扫描合成
+        </div>
     </div>
 
-    <textarea id="output" readonly>请打开一个合成</textarea>
+    <div class="editor-container">
+        <textarea id="output" spellcheck="false" placeholder="// 等待指令..."></textarea>
+
+        <div class="floating-actions">
+            <button class="icon-btn" id="btn-copy" title="复制 (Copy)">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2z" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                </svg>
+            </button>
+            <button class="icon-btn" id="btn-clear" title="清空 (Clear)">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                </svg>
+            </button>
+        </div>
+    </div>
 
     <div class="footer">
-        <button id="btn-web" class="footer-btn">访问官网</button>
-        <button id="btn-version" class="footer-btn">v3.5.4 CEP</button>
+        <button id="btn-web" class="footer-link">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20" />
+                <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+            </svg>
+            leesin.peelg.com
+        </button>
+        <button id="btn-version" class="footer-link version-badge">v3.5.4</button>
     </div>
+
+    <div id="toast" class="toast">已复制到剪贴板</div>
 
     <script src="CSInterface.js"></script>
     <script>
         const cs = new CSInterface();
+        const output = document.getElementById('output');
+        const toast = document.getElementById('toast');
 
         function openURL(url) {
             if (window.cep && window.cep.util) {
@@ -138,9 +305,27 @@
                     const cmd = (navigator.platform.indexOf('Mac') >= 0) ? `open "${url}"` : `start "" "${url}"`;
                     window.cep.process.createProcess('/bin/sh', '-c', cmd);
                 } catch (e) {
-                    document.getElementById('output').value = "无法打开链接: " + url;
+                    output.value = "无法打开链接: " + url;
                 }
             }
+        }
+
+        function run(script) {
+            output.style.opacity = "0.5";
+            cs.evalScript(script, (res) => {
+                output.style.opacity = "1";
+                if (res.indexOf("Error") !== -1 || res.indexOf("请") !== -1) {
+                    output.value = res;
+                } else {
+                    output.value = res;
+                }
+            });
+        }
+
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
         }
 
         document.getElementById('btn-extract').onclick = () => run('getKeysSpec()');
@@ -148,29 +333,36 @@
         document.getElementById('btn-layer').onclick = () => run('getLayerSpec()');
         document.getElementById('btn-comp').onclick = () => run('getCompSpec()');
 
-        document.getElementById('btn-web').onclick = () => {
-            openURL("https://leesin.peelg.com/");
+        document.getElementById('btn-copy').onclick = () => {
+            if (!output.value) return;
+            output.select();
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            showToast("已复制");
         };
 
-        function run(script) {
-            document.getElementById('output').value = "计算中...";
-            cs.evalScript(script, (res) => {
-                document.getElementById('output').value = res;
-            });
-        }
+        document.getElementById('btn-clear').onclick = () => {
+            output.value = "";
+            output.focus();
+        };
+
+        document.getElementById('btn-web').onclick = () => openURL("https://leesin.peelg.com/");
 
         const currentVer = "3.5.4";
+        const btnVer = document.getElementById('btn-version');
+        btnVer.textContent = "v" + currentVer;
+
         fetch("https://raw.githubusercontent.com/peelfig/LeeSinMotion/main/version.json")
             .then(res => res.json())
             .then(data => {
                 if (data.version && data.version > currentVer) {
-                    const b = document.getElementById('btn-version');
-                    b.innerText = "升级 v" + data.version;
-                    b.style.color = "#ffaa00";
-                    b.style.fontWeight = "bold";
-                    b.onclick = () => openURL("https://github.com/peelfig/LeeSinMotion/releases/latest");
+                    btnVer.innerHTML = `<span style="color:#d97706">●</span> 升级 v${data.version}`;
+                    btnVer.style.color = "#fbbf24";
+                    btnVer.style.fontWeight = "600";
+                    btnVer.onclick = () => openURL("https://github.com/peelfig/LeeSinMotion/releases/latest");
                 }
             }).catch(e => { });
+
     </script>
 </body>
 
