@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="com.peel.leesin.motion" ExtensionBundleVersion="3.5.4"
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.peel.leesin.motion" ExtensionBundleVersion="4.0.0"
 	ExtensionBundleName="LeeSinMotion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
-		<Extension Id="com.peel.leesin.motion.panel" Version="3.5.4" />
+		<Extension Id="com.peel.leesin.motion.panel" Version="4.0.0" />
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>

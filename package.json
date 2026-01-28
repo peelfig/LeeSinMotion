@@ -1,6 +1,6 @@
 {
   "name": "LeeSinMotion",
-  "version": "3.5.4",
+  "version": "4.0.0",
   "description": "Motion specs from After Effects",
   "main": "index.js",
   "scripts": {
