@@ -508,3 +508,79 @@ $.global.getCompSpec = function () {
         return parseSpecText(spec, false);
     } catch (e) { return "Error: " + e.toString(); }
 }
+
+// ==========================================
+// Footer Functions Ported from v3.5.4
+// ==========================================
+
+var exp_counter = "var sTime = marker.key(\"Start\").time; var eTime = marker.key(\"End\").time; var countTime = Math.max(time - sTime, 0); countTime = Math.min(countTime, eTime - sTime); var counter = Math.round(countTime * 1000); var playIcon = (time > sTime && time < eTime) ? \"► \" : \"■ \"; playIcon + counter + \"ms\";";
+var configFolder = Folder.userData.toString() + "/BattleAxe/LeeSinMotion/config/";
+
+function setTimeMarkers(layer, startTime, endTime) {
+    var layer_marker1 = new MarkerValue("Start");
+    layer_marker1.eventCuePoint = true;
+    layer.property("ADBE Marker").setValueAtTime(startTime, layer_marker1);
+
+    var layer_marker2 = new MarkerValue("End");
+    layer_marker2.eventCuePoint = true;
+    layer.property("ADBE Marker").setValueAtTime(endTime, layer_marker2);
+}
+
+$.global.buildCounter = function() {
+    try {
+        if (!setComp()) return "请打开一个合成";
+        var keyRange = getKeyRange();
+        
+        app.beginUndoGroup("New Counter");
+        
+        var dynText = thisComp.layers.addText("Counter");
+        dynText.name = "Counter";
+        dynText.comment = "LeeSinMotion_data";
+        dynText.guideLayer = true;
+
+        var dynText_TextProp = dynText.property("ADBE Text Properties").property("ADBE Text Document");
+        var dynText_TextDocument = dynText_TextProp.value;
+        dynText_TextDocument.resetCharStyle();
+        dynText_TextDocument.fontSize = thisComp.width / 30;
+        dynText_TextDocument.font = "CourierNewPS-BoldMT";
+        dynText_TextDocument.fillColor = [0.5, 0.5, 0.5];
+        dynText_TextDocument.applyStroke = false;
+        dynText_TextDocument.justification = ParagraphJustification.LEFT_JUSTIFY;
+        dynText_TextDocument.tracking = -30;
+        
+        if (parseFloat(app.version) >= 13.2) {
+             dynText_TextDocument.verticalScale = 1;
+             dynText_TextDocument.horizontalScale = 1;
+             dynText_TextDocument.baselineShift = 0;
+             dynText_TextDocument.tsume = 0;
+        }
+
+        dynText_TextProp.setValue(dynText_TextDocument);
+        dynText_TextProp.setValue("►");
+
+        var manualLineHeight = 10;
+        var lineHeight = dynText.property("ADBE Text Properties").property(4).addProperty("ADBE Text Animator"); // 4 is typical index, but safer to use matchName
+        // Wait, property(4) is risky. Let"s use matchNames if possible or trust source.
+        // Source used property(4). I will trust source.
+        lineHeight.name = "Line Height";
+        lineHeight.property("ADBE Text Animator Properties").addProperty("ADBE Text Line Spacing");
+        lineHeight.property(1).addProperty("ADBE Text Selector");
+        lineHeight.property(2).property("ADBE Text Line Spacing").setValue([0, manualLineHeight]);
+
+        dynText.property("ADBE Transform Group").property("ADBE Position").setValue([100, 100]);
+        
+        setTimeMarkers(dynText, keyRange[0], keyRange[1]);
+        dynText.property("ADBE Text Properties").property("ADBE Text Document").expression = exp_counter;
+        
+        app.endUndoGroup();
+        return "计数器已创建";
+    } catch(e) { return "Error: " + e.toString(); }
+};
+
+$.global.openSettings = function() {
+    var f = new Folder(configFolder);
+    if(!f.exists) f.create();
+    f.execute();
+    return "Settings opened";
+};
+

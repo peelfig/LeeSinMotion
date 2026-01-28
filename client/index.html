@@ -25,6 +25,7 @@
             flex-direction: column;
             box-sizing: border-box;
             user-select: none;
+            cursor: default;
         }
 
         .btn-group {
@@ -55,7 +56,7 @@
             background: #111;
         }
 
-        /* Output Area - Increased height since tabs are gone */
+        /* Output Area */
         textarea {
             flex: 1;
             background: #0b0b0b;
@@ -73,24 +74,25 @@
 
         .footer {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             margin-top: 10px;
             align-items: center;
         }
 
-        .btn-sm {
-            padding: 4px 10px;
-            font-size: 11px;
-            background: #1a1a1a;
-            border: 1px solid var(--border);
-            color: #ccc;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-
-        .version {
+        /* Version Label / Update Button */
+        #btn-help {
             font-size: 11px;
             color: #666;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            outline: none;
+            transition: color 0.2s;
+        }
+
+        #btn-help:hover {
+            color: #999;
         }
     </style>
 </head>
@@ -104,27 +106,43 @@
         <button class="btn" id="btn-comp">扫描：当前预合成</button>
     </div>
 
-    <!-- Removed Tabs -->
-
     <textarea id="output" readonly>请打开一个合成</textarea>
 
     <div class="footer">
-        <div style="display:flex; gap:8px;">
-            <button class="btn-sm">新计数器</button>
-            <button class="btn-sm">✱</button>
-            <button class="btn-sm">最新版本</button>
-        </div>
-        <div class="version">v3.5.4 CEP</div>
+        <button id="btn-help">v3.5.4 CEP</button>
     </div>
 
     <script src="CSInterface.js"></script>
     <script>
         const cs = new CSInterface();
 
+        // Helper: Robust Open URL
+        function openURL(url) {
+            if (window.cep && window.cep.util) {
+                window.cep.util.openURLInDefaultBrowser(url);
+            } else if (cs.openURLInDefaultBrowser) {
+                cs.openURLInDefaultBrowser(url);
+            } else {
+                try {
+                    const cmd = (navigator.platform.indexOf('Mac') >= 0) ? `open "${url}"` : `start "" "${url}"`;
+                    window.cep.process.createProcess('/bin/sh', '-c', cmd);
+                } catch (e) {
+                    document.getElementById('output').value = "无法打开链接: " + url;
+                }
+            }
+        }
+
         document.getElementById('btn-extract').onclick = () => run('getKeysSpec()');
         document.getElementById('btn-single').onclick = () => run('getSingleKeySpec()');
         document.getElementById('btn-layer').onclick = () => run('getLayerSpec()');
         document.getElementById('btn-comp').onclick = () => run('getCompSpec()');
+
+        document.getElementById('btn-help').onclick = () => {
+            // Default behavior: Do nothing or go to site? 
+            // If it's just version label, maybe do nothing unless update available.
+            // But let's keep it as a link to site for consistency.
+            openURL("https://leesin.peelg.com/");
+        };
 
         function run(script) {
             document.getElementById('output').value = "计算中...";
@@ -132,6 +150,19 @@
                 document.getElementById('output').value = res;
             });
         }
+
+        const currentVer = "3.5.4";
+        fetch("https://raw.githubusercontent.com/peelfig/LeeSinMotion/main/version.json")
+            .then(res => res.json())
+            .then(data => {
+                if (data.version && data.version > currentVer) {
+                    const b = document.getElementById('btn-help');
+                    b.innerText = "🚀 升级 v" + data.version;
+                    b.style.color = "#ffaa00";
+                    b.style.fontWeight = "bold";
+                    b.onclick = () => openURL("https://github.com/peelfig/LeeSinMotion/releases/latest");
+                }
+            }).catch(e => { });
     </script>
 </body>
 
