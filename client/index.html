@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeeSinMotion LAB</title>
+    <style>
+        :root {
+            --primary: #ff6a00;
+            --primary-dark: #cc5500;
+            --bg: #1a1c22;
+            --card-bg: #252830;
+            --text: #ffffff;
+            --text-dim: #9499a1;
+            --border: #3d424a;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* 玻璃拟态卡片 */
+        .glass-card {
+            background: rgba(37, 40, 48, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin: 0 0 15px 0;
+            background: linear-gradient(90deg, #ff6a00, #ff0055);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, #ff0055 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(255, 106, 0, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 106, 0, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: var(--card-bg);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: none;
+        }
+
+        textarea {
+            flex: 1;
+            background: #0d0e12;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #00ffaa;
+            font-family: "JetBrains Mono", "Courier New", monospace;
+            font-size: 12px;
+            padding: 15px;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .footer {
+            margin-top: 15px;
+            font-size: 10px;
+            color: var(--text-dim);
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="glass-card animate-in">
+        <h1>LeeSinMotion LAB</h1>
+        <button id="btn-export" class="btn">
+            <span>🎨 可视化导出</span>
+        </button>
+        <button id="btn-extract" class="btn btn-secondary">
+            <span>🔗 提取选中片段</span>
+        </button>
+    </div>
+
+    <textarea id="output" class="animate-in" style="animation-delay: 0.1s;" placeholder="等待动效数据提取..."></textarea>
+
+    <div class="footer animate-in" style="animation-delay: 0.2s;">
+        <span>v3.5.4 CEP Alpha</span>
+        <span>Peelg.com</span>
+    </div>
+
+    <script src="CSInterface.js"></script>
+    <script>
+        var csInterface = new CSInterface();
+
+        document.getElementById('btn-extract').onclick = function () {
+            // 调用 JSX 里的函数
+            csInterface.evalScript('getKeysSpec()', function (result) {
+                try {
+                    var data = JSON.parse(result);
+                    // 假设我们在 JSX 里写了类似 parseSpecText 的逻辑并返回
+                    csInterface.evalScript('parseSpecText(' + result + ')', function (text) {
+                        document.getElementById('output').value = text;
+                    });
+                } catch (e) {
+                    document.getElementById('output').value = "数据提取失败: " + e;
+                }
+            });
+        };
+
+        document.getElementById('btn-export').onclick = function () {
+            csInterface.evalScript('btn_visualExport_onClick()');
+        };
+
+        // 处理从 JSX 传来的日志或弹窗
+        csInterface.addEventListener("com.peel.leesin.log", function (event) {
+            console.log(event.data);
+        });
+    </script>
+</body>
+
+</html>
