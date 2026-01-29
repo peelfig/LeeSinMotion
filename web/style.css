@@ -153,10 +153,14 @@ body {
 /* Hero Section */
 .hero {
     position: relative;
-    padding: 180px 0 100px;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
+    padding-top: 140px;
+    /* Explicit space to clear navbar + breathing room */
+    padding-bottom: 60px;
+    /* Regular bottom padding */
+    min-height: auto;
+    /* STOP forcing full screen height */
+    display: block;
+    /* Remove flex centering */
     overflow: hidden;
 }
 
@@ -202,13 +206,17 @@ body {
     transform: perspective(1000px) rotateY(-5deg) rotateX(2deg) translateY(-10px);
 }
 
-.glass-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
+.glass-card,
+.install-card {
+    background: rgba(255, 255, 255, 0.05);
+    /* Slightly more visible background */
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    /* More visible border */
     border-radius: 16px;
     padding: 1.5rem;
     backdrop-filter: blur(20px);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    /* Good shadow */
 }
 
 .mockup-header {
@@ -299,7 +307,7 @@ body {
 
 /* Features */
 .features {
-    padding: 100px 0;
+    padding: 60px 0 100px;
     background: #020208;
 }
 
@@ -491,6 +499,40 @@ body {
     }
 }
 
+/* Installation Section */
+.installation {
+    padding: 100px 0;
+}
+
+.install-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.os-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.install-card h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.path-box {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    word-break: break-all;
+    margin-top: 0.5rem;
+    color: #a5b4fc;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
     .navbar {
@@ -520,12 +562,12 @@ body {
     }
 
     .logo span span {
-        /* Adjust the 'v4.0' badge position */
         vertical-align: middle !important;
     }
 
+    /* Smaller Download Button */
     .btn-sm {
-        padding: 0.4rem 0.8rem;
+        padding: 0.4rem 0.6rem;
         font-size: 0.75rem;
     }
 
@@ -543,46 +585,64 @@ body {
         gap: 2.5rem;
     }
 
-    /* Make text container order first, visual second (default) but add margin */
     .hero-text {
         text-align: center;
-        /* Center align hero text on mobile */
     }
 
+    /* Stack CTA Buttons Vertically */
     .cta-group {
-        justify-content: center;
-        /* Center align buttons */
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+        gap: 1rem;
+    }
+
+    .cta-group .btn {
+        width: 100%;
+        text-align: center;
+        padding: 0.9rem 0;
     }
 
     .hero h1 {
         font-size: 2.5rem;
-        /* Smaller heading */
     }
 
     .hero {
         padding-top: 100px;
         min-height: auto;
-        /* Remove min-height constraint */
         padding-bottom: 60px;
     }
 
     .install-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+        /* Force vertical stack */
+        gap: 1.5rem;
     }
 
-    /* Fix footer stacking */
     .footer-content {
         flex-direction: column;
         gap: 1.5rem;
         text-align: center;
     }
 
-    /* Allow code paths to scroll instead of breaking word uncomfortably */
+    /* Fix Path Box - Horizontal Scroll */
     .path-box {
-        overflow-x: auto;
-        white-space: nowrap;
-        word-break: normal;
-        -webkit-overflow-scrolling: touch;
-        /* Smooth scroll on iOS */
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        overflow-x: visible;
+        padding: 0.8rem;
+        background: rgba(0, 0, 0, 0.4);
+        margin-bottom: 0.5rem;
+        display: block;
+        width: 100%;
+        line-height: 1.5;
+    }
+
+    .install-card {
+        padding: 1.5rem;
+        /* Reduce padding to save space */
     }
 }
