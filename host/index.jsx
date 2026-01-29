@@ -373,7 +373,8 @@ $.global.getKeysSpec = function () {
                 activeLayer = layer;
                 spec.layers.push({
                     name: layer.name,
-                    _layerObj: layer, // Hack: Storing reference to real layer object for anchor lookup
+                    index: layer.index, // Add index so text parser outputs "Layer X -"
+                    _layerObj: layer,
                     props: []
                 });
             }

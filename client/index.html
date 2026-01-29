@@ -50,6 +50,22 @@
             gap: 6px;
         }
 
+        .wait-block {
+            height: 100%;
+            background: repeating-linear-gradient(45deg,
+                    #ffffff,
+                    #ffffff 10px,
+                    #f5f5f7 10px,
+                    #f5f5f7 20px);
+            color: #ccc;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px dashed #e0e0e0;
+            border-radius: 4px 0 0 4px;
+        }
+
         .btn:hover {
             background: #2d2d2d;
             border-color: #555;
@@ -411,14 +427,26 @@
             // Version Checking
             const btnVer = document.getElementById('btn-version');
             btnVer.textContent = "v" + currentVer;
+
+            // SemVer Comparison
+            const isNewer = (remote, local) => {
+                const r = remote.split('.').map(Number);
+                const l = local.split('.').map(Number);
+                for (let i = 0; i < 3; i++) {
+                    if ((r[i] || 0) > (l[i] || 0)) return true;
+                    if ((r[i] || 0) < (l[i] || 0)) return false;
+                }
+                return false;
+            };
+
             fetch("https://raw.githubusercontent.com/peelfig/LeeSinMotion/main/version.json")
                 .then(res => res.json())
                 .then(data => {
-                    if (data.version && data.version > currentVer) {
+                    if (data.version && isNewer(data.version, currentVer)) {
                         btnVer.innerHTML = `<span style="color:#d97706">●</span> 升级 v${data.version}`;
                         btnVer.style.color = "#fbbf24";
                         btnVer.style.fontWeight = "600";
-                        btnVer.onclick = () => openURL("https://github.com/peelfig/LeeSinMotion/releases/latest");
+                        btnVer.onclick = () => csInterface.openURLInDefaultBrowser("https://github.com/peelfig/LeeSinMotion/releases/latest");
                     }
                 }).catch(e => { });
         });
@@ -582,7 +610,7 @@
   .prop-name { color: #8b5cf6; font-weight: 700; margin-right: 8px; } 
   .prop-value { color: #999; font-weight: 400; font-size: 13px; font-family: "Menlo", monospace; }
   .timeline-track { position: relative; height: 36px; background: #fafafa; border-radius: 6px; overflow: hidden; display: flex; width: 100%; border: 1px solid #f5f5f5; }
-  .wait-block { height: 100%; background: #f3f3f3; color: #aaa; font-size: 11px; display: flex; align-items: center; justify-content: center; border-right: 2px dashed #ddd; box-sizing: border-box; white-space: nowrap; overflow: hidden; }
+  .wait-block { height: 100%; background: repeating-linear-gradient(45deg, #ffffff, #ffffff 10px, #f5f5f7 10px, #f5f5f7 20px); color: #ccc; font-size: 11px; display: flex; align-items: center; justify-content: center; border-right: 1px dashed #e0e0e0; box-sizing: border-box; white-space: nowrap; overflow: hidden; }
   .action-block { position: absolute; height: 100%; background: #f3e8ff; border: 2px solid #a855f7; border-radius: 6px; color: #7e22ce; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; z-index: 2; }
   .prop-footer { margin-top: 6px; font-size: 12px; color: #888; display: flex; gap: 16px; }
   .ease-val { color: #444; font-weight: 500; }

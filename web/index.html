@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeeSin Motion 4.0 - Visual Motion Specs for After Effects</title>
+    <meta name="description"
+        content="Generate precise motion specs and visual HTML timelines from After Effects keyframes with one click. Deliver data to engineering seamlessly.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=4.0">
+    <style>
+        .icon svg,
+        .os-icon svg {
+            width: 32px;
+            height: 32px;
+            max-width: 100%;
+            transition: none;
+        }
+
+        .new-badge {
+            background: #8b5cf6;
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            vertical-align: middle;
+            margin-left: 6px;
+        }
+    </style>
+    <link rel="icon" type="image/png" href="assets/logo.png">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <a href="#" class="logo">
+                <span>LeeSin Motion <span
+                        style="font-size: 0.5em; opacity: 0.6; vertical-align: top;">v4.0</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="#features" data-i18n="nav-features">Features</a>
+                <a href="#installation" data-i18n="nav-how">Installation</a>
+                <a href="https://github.com/peelfig/LeeSinMotion" target="_blank" data-i18n="nav-github">GitHub</a>
+                <a href="https://github.com/peelfig/LeeSinMotion/releases/latest" class="btn btn-primary btn-sm"
+                    data-i18n="nav-download">Download</a>
+                <button class="lang-switch" id="langToggle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path
+                            d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                        </path>
+                    </svg>
+                    <span id="langText">中文</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container hero-content">
+            <div class="hero-text">
+                <h1 class="fade-in-up" data-i18n="hero-title">Visual Specs,<br>Reimagined.</h1>
+                <p class="subtitle fade-in-up delay-1" data-i18n="hero-sub">The new v4.0 brings One-Click HTML Timeline
+                    Export. Bridge the gap between Design and Engineering with pixel-perfect visual data.</p>
+                <div class="cta-group fade-in-up delay-2">
+                    <a href="https://github.com/peelfig/LeeSinMotion/releases/latest" class="btn btn-primary"
+                        data-i18n="btn-get">Get v4.0 Extension</a>
+                    <a href="#features" class="btn btn-outline" data-i18n="btn-learn">See What's New</a>
+                </div>
+            </div>
+            <div class="hero-visual fade-in-up delay-3">
+                <div class="glass-card mockup">
+                    <div class="mockup-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <div class="mockup-body">
+                        <div class="code-block">
+                            <span class="comment" data-i18n="mockup-comment">// New HTML Timeline Mode</span>
+                            <div><span class="keyword" data-i18n="mockup-layer">Export:</span> <span
+                                    class="string">timeline.html</span></div>
+                            <div style="margin-top: 8px; border-left: 2px solid #8b5cf6; padding-left: 8px;">
+                                <div><span class="keyword">Layer:</span> <span class="string">Card_Entry</span></div>
+                                <div class="value" style="color:#aaa;">Y: 500 → 200px <span
+                                        style="color:#8b5cf6;">(300px ↑)</span></div>
+                                <div style="display:flex; align-items:center; gap:4px; margin-top:4px;">
+                                    <div style="width:20px; height:6px; background:#333; border-radius:2px;"></div>
+                                    <div style="width:60px; height:6px; background:#8b5cf6; border-radius:2px;"></div>
+                                    <span style="font-size:10px; color:#666;">500ms</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-bg-glow"></div>
+    </header>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title" data-i18n="features-title">What's New in v4.0</h2>
+            <div class="grid">
+                <div class="feature-card"
+                    style="border-color: rgba(139, 92, 246, 0.3); background: rgba(139, 92, 246, 0.05);">
+                    <div class="icon" style="color: #8b5cf6;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <path d="M9 3v18" />
+                            <path d="M15 3v18" />
+                            <path d="M3 9h18" />
+                            <path d="M3 15h18" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="f-new-t">HTML Timeline Export</h3>
+                    <p data-i18n="f-new-d">One-click to generate a standalone HTML file with a visual timeline, easing
+                        curves, and duration markers. Developers love it.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="6" cy="6" r="3" />
+                            <path d="M8.12 8.12 12 12" />
+                            <circle cx="6" cy="18" r="3" />
+                            <path d="M8.12 15.88 12 12" />
+                            <path d="M20 4 8.12 15.88" />
+                            <path d="M20 20 8.12 8.12" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="f1-t">Extract: Segment</h3>
+                    <p data-i18n="f1-d">Analyze easing and value changes between two keyframes for precise handoff.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z" />
+                            <path d="m6.2 5.3 3.1 3.9" />
+                            <path d="m12.4 3.4 3.1 4" />
+                            <path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="f4-t">Scan: Pre-comp</h3>
+                    <p data-i18n="f4-d">Generate a full animation script ordered by element appearance time.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="4 17 10 11 14 15 20 9" />
+                            <line x1="12" y1="19" x2="12" y2="19" />
+                            <path d="M20 20h-6" />
+                            <path d="M4 4h16" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="f3-t">High Performance</h3>
+                    <p data-i18n="f3-d">Rebuilt as a native CEP extension. Parses data 10x faster and supports AE
+                        2014-2025.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="installation" class="installation">
+        <div class="container">
+            <h2 class="section-title" data-i18n="install-title">Installation Guide (v4.0)</h2>
+            <p style="text-align: center; color: #888; margin-bottom: 0.5rem;" data-i18n="install-intro">LeeSinMotion
+                v4.0
+                is a <b>CEP Extension</b>. Please install the folder, not a script file.</p>
+            <p style="text-align: center; color: #8b5cf6; font-weight: 600; font-size: 14px; margin-bottom: 2rem;"
+                data-i18n="min-req">Minimum Requirement: After Effects CC 2014 (v13.0)+</p>
+
+            <div class="install-grid">
+                <div class="install-card fade-in-up">
+                    <div class="os-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor">
+                            <path
+                                d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+                        </svg>
+                    </div>
+                    <h3>macOS</h3>
+                    <p data-i18n="install-mac-desc">Move the `com.peel.leesin.motion` folder to:</p>
+                    <div class="path-box">
+                        <code>/Library/Application Support/Adobe/CEP/extensions/</code>
+                    </div>
+                    <p style="font-size: 12px; opacity: 0.6; margin-top: 8px;">Run in Terminal:
+                        <code>defaults write com.adobe.CSXS.11 PlayerDebugMode 1</code>
+                    </p>
+                </div>
+                <div class="install-card fade-in-up delay-1">
+                    <div class="os-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor">
+                            <path
+                                d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.4H0v149.9zm203.8 28.1L448 512V268.4H203.8v178zm0-380.6v177.4H448V0L203.8 65.8z" />
+                        </svg>
+                    </div>
+                    <h3>Windows</h3>
+                    <p data-i18n="install-win-desc">Move the `com.peel.leesin.motion` folder to:</p>
+                    <div class="path-box">
+                        <code>C:\Program Files (x86)\Common Files\Adobe\CEP\extensions\</code>
+                    </div>
+                    <p style="font-size: 12px; opacity: 0.6; margin-top: 8px;">RegEdit:
+                        <code>HKEY_CURRENT_USER\Software\Adobe\CSXS.11</code> add String <code>PlayerDebugMode=1</code>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span>LeeSin Motion</span>
+                </div>
+                <div class="copyright" data-i18n="copyright">
+                    © 2026 LeeSin Motion Project. Open Source under Apache 2.0.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const translations = {
+            en: {
+                "nav-features": "Features",
+                "nav-how": "Installation",
+                "nav-github": "GitHub",
+                "nav-download": "Download v4.0",
+                "min-req": "Minimum Requirement: After Effects CC 2014 (v13.0)+",
+                "install-title": "Installation Guide (CEP)",
+                "install-intro": "LeeSinMotion v4.0 is a <b>CEP Extension</b>. Please install the folder structure, not a script file.",
+                "install-mac-desc": "Move the 'com.peel.leesin.motion' folder to:",
+                "install-win-desc": "Move the 'com.peel.leesin.motion' folder to:",
+                "hero-title": "Visual Specs,<br>Reimagined.",
+                "hero-sub": "The new v4.0 brings One-Click HTML Timeline Export. Bridge the gap between Design and Engineering with pixel-perfect visual data.",
+                "btn-get": "Get v4.0 Extension",
+                "btn-learn": "See What's New",
+                "mockup-comment": "// New HTML Timeline Mode",
+                "mockup-layer": "Export:",
+                "features-title": "What's New in v4.0",
+                "f-new-t": "HTML Timeline Export",
+                "f-new-d": "One-click to generate a standalone HTML file with a visual timeline, easing curves, and duration markers. Developers love it.",
+                "f1-t": "Extract: Segment",
+                "f1-d": "Analyze easing and value changes between two keyframes for precise handoff.",
+                "f4-t": "Scan: Pre-comp",
+                "f4-d": "Generate a full animation script ordered by element appearance time.",
+                "f3-t": "High Performance (CEP)",
+                "f3-d": "Rebuilt as a native CEP extension. Parses data 10x faster and supports AE 2014-2025.",
+                "copyright": "© 2026 LeeSin Motion Project. Open Source under Apache 2.0.",
+                "lang-toggle": "中文"
+            },
+            zh: {
+                "nav-features": "新版特性",
+                "nav-how": "安装指南",
+                "nav-github": "源码",
+                "nav-download": "下载 v4.0",
+                "min-req": "最低版本要求: After Effects CC 2014 (v13.0) 及以上",
+                "install-title": "安装说明 (CEP扩展)",
+                "install-intro": "LeeSinMotion v4.0 升级为 <b>CEP 扩展</b>。请直接复制文件夹安装，不再是单文件脚本。",
+                "install-mac-desc": "将 'com.peel.leesin.motion' 文件夹移动到：",
+                "install-win-desc": "将 'com.peel.leesin.motion' 文件夹移动到：",
+                "hero-title": "可视标注，<br>全新进化。",
+                "hero-sub": "v4.0 带来了一键 HTML 时间轴导出。用像素级精准的可视化图表，彻底消除设计与开发的沟通障碍。",
+                "btn-get": "获取 v4.0 扩展",
+                "btn-learn": "查看新功能",
+                "mockup-comment": "// 全新 HTML 时间轴模式",
+                "mockup-layer": "导出:",
+                "features-title": "v4.0 主要更新",
+                "f-new-t": "HTML 可视化导出",
+                "f-new-d": "一键生成独立的 HTML 文件，包含精准的动效时间轴、贝塞尔曲线和时长标记。开发看了一眼就会爱上。",
+                "f1-t": "提取：选中片段",
+                "f1-d": "精确分析选中的两个关键帧之间的贝塞尔曲线和数值变化参数。",
+                "f4-t": "扫描：当前预合成",
+                "f4-d": "“动效剧本”模式。扫描整个预合成，并按元素执行先后顺序排列展示。",
+                "f3-t": "原生 CEP 高性能架构",
+                "f3-d": "底层完全重构。解析速度提升 10 倍，同时完美兼容 AE CC 2014 至 2025 全系列版本。",
+                "copyright": "© 2026 LeeSin Motion 项目。基于 Apache 2.0 协议开源。",
+                "lang-toggle": "EN"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'zh' : 'en';
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.innerHTML = translations[currentLang][key];
+                }
+            });
+            document.getElementById('langText').innerText = translations[currentLang]['lang-toggle'];
+            document.documentElement.lang = currentLang;
+        }
+
+        document.getElementById('langToggle').addEventListener('click', toggleLang);
+    </script>
+</body>
+
+</html>
