@@ -55,11 +55,11 @@ EOF
 
 # 更新客户端版本号
 echo "📝 更新客户端版本号"
-sed -i '' "s/const currentVer = \"[^\"]*\"/const currentVer = \"$VERSION\"/" client/index.html
+sed -i '' "s/const currentVer = \"[^\"]*\"/const currentVer = \"$VERSION\"/" extension/client/index.html
 
 # 提交更改
 echo "💾 提交更改"
-git add version.json client/index.html
+git add version.json extension/client/index.html
 git commit -m "chore: bump version to $VERSION
 
 $MESSAGE

@@ -6,7 +6,9 @@ on:
       - main
     paths-ignore:
       - '**.md'
-      - 'documentation/**'
+      - 'website/**'
+      - 'docs/**'
+      - 'scripts/**'
       - '.github/**'
 
 jobs:
@@ -38,7 +40,11 @@ jobs:
       - name: Create release package
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          cd LeeSinMotion_v4.0.0
+          # 创建打包用的临时目录结构
+          mkdir -p build/com.peel.leesin.motion
+          cp -r extension/* build/com.peel.leesin.motion/
+          cp docs/安装说明_Installation.txt build/
+          cd build
           zip -r ../LeeSinMotion_v${{ steps.version.outputs.version }}.zip com.peel.leesin.motion 安装说明_Installation.txt
           cd ..
 

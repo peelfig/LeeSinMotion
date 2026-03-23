@@ -1,7 +1,7 @@
 # LeeSinMotion v4.0
 
 <div align="center">
-  <img src="documentation/docs/.vuepress/public/img/logo.png" width="120" alt="LeeSinMotion Logo" />
+  <img src="docs/images/LeeSinMotion_logo.png" width="120" alt="LeeSinMotion Logo" />
   <h3>Design to Code, The Missing Bridge.</h3>
   <p>Make animation handoff painless with precise data and visual timeline specifications.</p>
   <p>
@@ -70,6 +70,20 @@ Restart AE, and find it under:
 1. **Scan (扫描)**: 选中关键帧，点击 `获取参数`。
 2. **Copy (复制)**: 点击对应属性即可复制 CSS/贝塞尔参数。
 3. **Export (导出)**: 点击底部的 `Export Timeline HTML`，生成交互文档发给开发。
+
+## 📂 项目结构 (Project Structure)
+
+```text
+LeeSinMotion/
+├── extension/                # 🧩 插件核心代码 (client, host, CSXS, package.json)
+├── website/                  # 🌐 插件官网/介绍网站 (VuePress 源码)
+├── docs/                     # 📖 文档中心 (贡献指南、发布记录、安装说明、图片)
+├── scripts/                  # 🛠 自动化脚本 (release.sh, convert_html.py)
+├── version.json              # 🔢 全局版本控制 (保留在根目录以便脚本读取)
+├── README.md                 # 🏠 项目主文档
+├── LICENSE.md                # ⚖️ 开源协议
+└── LeeSinMotion_v4.0.0.zip   # 📦 最新稳定版安装包 (保持在根目录)
+```
 
 ## ❤️ 致敬 (Credits)
 Original concept by [Adam Plouff](http://www.battleaxe.co/) (Inspector Spacetime).
