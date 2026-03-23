@@ -435,9 +435,8 @@
                 };
             }
 
-            function generateLeeSinHTML(textData, thumbnails) {
+            function generateLeeSinHTML(textData) {
                 const escaped = textData.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                const thumbnailsJSON = JSON.stringify(thumbnails || {});
 
                 return `<!DOCTYPE html>
 <html>
