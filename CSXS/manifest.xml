@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="com.peel.leesin.motion" ExtensionBundleVersion="4.0.0"
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.peel.leesin.motion.beta" ExtensionBundleVersion="4.0.0"
 	ExtensionBundleName="LeeSinMotion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
-		<Extension Id="com.peel.leesin.motion.panel" Version="4.0.0" />
+		<Extension Id="com.peel.leesin.motion.panel.beta" Version="4.0.0" />
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
@@ -16,7 +16,7 @@
 		</RequiredRuntimeList>
 	</ExecutionEnvironment>
 	<DispatchInfoList>
-		<Extension Id="com.peel.leesin.motion.panel">
+		<Extension Id="com.peel.leesin.motion.panel.beta">
 			<DispatchInfo>
 				<Resources>
 					<MainPath>./client/index.html</MainPath>
@@ -30,7 +30,7 @@
 				</Lifecycle>
 				<UI>
 					<Type>Panel</Type>
-					<Menu>LeeSinMotion</Menu>
+					<Menu>LeeSinMotion (Beta)</Menu>
 					<Geometry>
 						<Size>
 							<Height>600</Height>
