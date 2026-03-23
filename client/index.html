@@ -614,69 +614,78 @@
             const params = [];
             let currentLayerName = '';
             let currentAnchor = '';
-            let currentProperty = '';
-            let currentValue = '';
-            let currentStart = '';
-            let currentDuration = '';
-            let currentEasing = '';
 
-            for (let i = 0; i < lines.length; i++) {
+            let i = 0;
+            while (i < lines.length) {
                 const line = lines[i].trim();
-                if (!line) continue;
 
-                if (line.startsWith('Layer')) {
+                if (line.match(/^Layer\\s+\\d+/)) {
                     currentLayerName = line;
-                    currentAnchor = '';
+                    i++;
+                    continue;
                 }
-                else if (line.startsWith('[Anchor:')) {
-                    currentAnchor = line.replace('[Anchor:', '').replace(']', '').trim();
+
+                if (line.startsWith('[Anchor:')) {
+                    currentAnchor = line.replace(/^\\[Anchor:\\s*/, '').replace(/\\]$/, '').trim();
+                    i++;
+                    continue;
                 }
-                else if (line.startsWith('- ')) {
-                    if (currentProperty && currentLayerName) {
+
+                if (line.match(/^-\\s+\\S/)) {
+                    const propMatch = line.match(/^-\\s+([^\\[]+)/);
+                    const property = propMatch ? propMatch[1].trim() : line.substring(2).trim();
+
+                    let value = '';
+                    let startTime = '';
+                    let duration = '';
+                    let easing = '';
+
+                    i++;
+                    while (i < lines.length) {
+                        const detailLine = lines[i];
+                        const trimmedDetail = detailLine.trim();
+
+                        if (!trimmedDetail) {
+                            i++;
+                            continue;
+                        }
+
+                        if (!detailLine.startsWith(' ') && !detailLine.startsWith('\\t')) {
+                            break;
+                        }
+
+                        if (trimmedDetail.match(/^Start:/)) {
+                            startTime = trimmedDetail.replace(/^Start:\\s*/, '').trim();
+                        }
+                        else if (trimmedDetail.match(/^Duration:/)) {
+                            duration = trimmedDetail.replace(/^Duration:\\s*/, '').trim();
+                        }
+                        else if (trimmedDetail.match(/\\(\\s*[0-9.]+\\s*,\\s*[0-9.]+\\s*,\\s*[0-9.]+\\s*,\\s*[0-9.]+\\s*\\)/)) {
+                            easing = trimmedDetail;
+                        }
+                        else {
+                            value += (value ? ' ' : '') + trimmedDetail;
+                        }
+
+                        i++;
+                    }
+
+                    if (property && currentLayerName) {
                         params.push({
                             layerName: currentLayerName,
-                            anchor: currentAnchor,
-                            property: currentProperty,
-                            value: currentValue.trim(),
-                            startTime: currentStart,
-                            duration: currentDuration,
-                            easing: currentEasing
+                            anchor: currentAnchor || '-',
+                            property: property,
+                            value: value.trim() || '-',
+                            startTime: startTime || '-',
+                            duration: duration || '-',
+                            easing: easing || '-'
                         });
                     }
 
-                    const propMatch = line.match(/^-\\s+([^\\[]+)/);
-                    currentProperty = propMatch ? propMatch[1].trim() : line.substring(2).trim();
-                    currentValue = '';
-                    currentStart = '';
-                    currentDuration = '';
-                    currentEasing = '';
+                    continue;
                 }
-                else if (line.startsWith('Start:')) {
-                    currentStart = line.replace('Start:', '').trim();
-                }
-                else if (line.startsWith('Duration:')) {
-                    currentDuration = line.replace('Duration:', '').trim();
-                }
-                else if (line.match(/.*\\([0-9.]+,\\s*[0-9.]+,\\s*[0-9.]+,\\s*[0-9.]+\\)/)) {
-                    currentEasing = line;
-                }
-                else if (currentProperty) {
-                    if (line.includes('→') || (line.includes(':') && !line.startsWith('Start:') && !line.startsWith('Duration:'))) {
-                        currentValue += (currentValue ? ' ' : '') + line;
-                    }
-                }
-            }
 
-            if (currentProperty && currentLayerName) {
-                params.push({
-                    layerName: currentLayerName,
-                    anchor: currentAnchor,
-                    property: currentProperty,
-                    value: currentValue.trim(),
-                    startTime: currentStart,
-                    duration: currentDuration,
-                    easing: currentEasing
-                });
+                i++;
             }
 
             return params;
