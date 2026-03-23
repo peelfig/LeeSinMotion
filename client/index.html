@@ -515,12 +515,6 @@
         tr:hover {
             background: #2d2d30;
         }
-        .thumbnail {
-            max-width: 80px;
-            max-height: 50px;
-            border-radius: 4px;
-            display: block;
-        }
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -555,7 +549,6 @@
                 <thead>
                     <tr>
                         <th>图层名</th>
-                        <th>缩略图</th>
                         <th>锚点位置</th>
                         <th>属性</th>
                         <th>参数</th>
@@ -569,12 +562,9 @@
         </div>
     </div>
 
-    <script id="thumbnails-data" type="application/json">${thumbnailsJSON}</scr` + `ipt>
-
     <script>
         const preElement = document.getElementById('leesin-data');
         const animationText = preElement.textContent;
-        const thumbnails = JSON.parse(document.getElementById('thumbnails-data').textContent);
 
         function parseAnimationData(text) {
             const lines = text.split('\\n');
@@ -663,17 +653,10 @@
 
         params.forEach(param => {
             const row = document.createElement('tr');
-            const layerNameMatch = param.layerName.match(/Layer \\\\d+ - (.+)/);
-            const cleanLayerName = layerNameMatch ? layerNameMatch[1] : param.layerName;
-            const thumbnailSrc = thumbnails[cleanLayerName] || '';
-            const thumbnailHTML = thumbnailSrc ?
-                '<img src="' + thumbnailSrc + '" class="thumbnail" alt="' + cleanLayerName + '">' :
-                '<span style="color:#666;">无</span>';
 
             row.innerHTML =
                 '<td>' + param.layerName + '</td>' +
-                '<td>' + thumbnailHTML + '</td>' +
-                '<td>' + (param.anchor || '-') + '</td>' +
+                '<td>' + param.anchor + '</td>' +
                 '<td>' + param.property + '</td>' +
                 '<td class="value-cell">' + param.value + '</td>' +
                 '<td class="duration-cell">' + param.startTime + '</td>' +
