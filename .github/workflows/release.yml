@@ -1,0 +1,67 @@
+name: Auto Release
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'documentation/**'
+      - '.github/**'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(cat version.json | grep -o '"version": *"[^"]*"' | grep -o '"[0-9.]*"' | tr -d '"')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create release package
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          cd LeeSinMotion_v4.0.0
+          zip -r ../LeeSinMotion_v${{ steps.version.outputs.version }}.zip com.peel.leesin.motion 安装说明_Installation.txt
+          cd ..
+
+      - name: Create Release
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: LeeSinMotion v${{ steps.version.outputs.version }}
+          body: |
+            ## 🎉 LeeSinMotion v${{ steps.version.outputs.version }}
+
+            ### 下载安装
+            下载 `LeeSinMotion_v${{ steps.version.outputs.version }}.zip` 并解压到 CEP 扩展目录
+
+            ### 更新内容
+            查看提交历史了解详细更新
+
+            ---
+            *自动发布于 ${{ github.event.head_commit.timestamp }}*
+          files: |
+            LeeSinMotion_v${{ steps.version.outputs.version }}.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
