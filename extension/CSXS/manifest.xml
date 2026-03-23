@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="com.peel.leesin.motion" ExtensionBundleVersion="4.0.1"
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.peel.leesin.motion.panel" ExtensionBundleVersion="4.0.1"
 	ExtensionBundleName="LeeSinMotion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
 		<Extension Id="com.peel.leesin.motion.panel" Version="4.0.1" />
@@ -12,7 +12,7 @@
 			<Locale Name="All" />
 		</LocaleList>
 		<RequiredRuntimeList>
-			<RequiredRuntime Name="CSXS" Version="7.0" />
+			<RequiredRuntime Name="CSXS" Version="6.0" />
 		</RequiredRuntimeList>
 	</ExecutionEnvironment>
 	<DispatchInfoList>
