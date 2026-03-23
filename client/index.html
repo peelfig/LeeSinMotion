@@ -121,6 +121,61 @@
             margin-top: 12px;
             align-items: center;
             padding: 0 4px;
+            gap: 16px;
+            user-select: auto;
+            -webkit-user-select: auto;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: auto;
+        }
+
+        .scale-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .scale-selector label {
+            color: #888;
+        }
+
+        .scale-buttons {
+            display: flex;
+            gap: 4px;
+            background: var(--panel);
+            padding: 2px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .scale-btn {
+            background: transparent;
+            border: none;
+            color: #888;
+            padding: 3px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .scale-btn:hover {
+            color: #ccc;
+        }
+
+        .scale-btn.active {
+            background: #333;
+            color: #fff;
+        }
+
+        .scale-selector select:hover {
+            border-color: #555;
         }
 
         .footer-link {
@@ -306,15 +361,26 @@
     </div>
 
     <div class="footer">
-        <button id="btn-web" class="footer-link">
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M2 12h20" />
-                <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-            </svg>
-            leesin.peelg.com
-        </button>
-        <button id="btn-version" class="footer-link version-badge">v3.5.4</button>
+        <div class="footer-left">
+            <div class="scale-selector">
+                <label>导出倍率:</label>
+                <div class="scale-buttons">
+                    <button class="scale-btn" data-scale="2">2x</button>
+                    <button class="scale-btn active" data-scale="3">3x</button>
+                </div>
+            </div>
+        </div>
+        <div>
+            <button id="btn-web" class="footer-link" style="margin-right: 12px;">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M2 12h20" />
+                    <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+                </svg>
+                leesin.peelg.com
+            </button>
+            <button id="btn-version" class="footer-link version-badge">v3.5.4</button>
+        </div>
     </div>
 
     <div id="toast" class="toast">已复制到剪贴板</div>
@@ -397,6 +463,62 @@
             // Initial state
             updateButtonsState();
 
+            // Scale buttons handler
+            const scaleButtons = document.querySelectorAll('.scale-btn');
+            scaleButtons.forEach(btn => {
+                btn.onclick = () => {
+                    scaleButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                };
+            });
+
+            function convertPositionValues(text, scaleFactor) {
+                const lines = text.split('\n');
+                const result = [];
+
+                for (let i = 0; i < lines.length; i++) {
+                    let line = lines[i];
+
+                    // Skip lines that shouldn't be converted
+                    if (line.includes('Total duration:') ||
+                        line.includes('Start:') ||
+                        line.includes('Duration:') ||
+                        line.includes('Linear') ||
+                        line.includes('Default') ||
+                        line.includes('Bezier') ||
+                        line.includes('Ease') ||
+                        line.match(/^Layer\s+\d+/) ||
+                        line.match(/\[\d+-\d+\]/) ||
+                        line.includes('%')) {
+                        result.push(line);
+                        continue;
+                    }
+
+                    // Convert position coordinates in Anchor line: Custom (x, y)
+                    if (line.includes('[Anchor:') && line.includes('Custom')) {
+                        line = line.replace(/Custom\s*\((\d+\.?\d*),\s*(\d+\.?\d*)\)/, (match, x, y) => {
+                            const newX = parseFloat(x) / scaleFactor;
+                            const newY = parseFloat(y) / scaleFactor;
+                            const formatNum = (num) => num % 1 === 0 ? num.toString() : num.toFixed(2);
+                            return `Custom (${formatNum(newX)}, ${formatNum(newY)})`;
+                        });
+                    }
+
+                    // Convert position values like "Y: 2791 → 1311px (1480px ↑)"
+                    if (line.match(/[XY]:\s*\d+/)) {
+                        line = line.replace(/(\d+\.?\d*)px/g, (match, num) => {
+                            const converted = parseFloat(num) / scaleFactor;
+                            const formatted = converted % 1 === 0 ? converted.toString() : converted.toFixed(2);
+                            return formatted + 'pt';
+                        });
+                    }
+
+                    result.push(line);
+                }
+
+                return result.join('\n');
+            }
+
             // Export Handler
             if (btnExport) {
                 btnExport.onclick = () => {
@@ -410,7 +532,9 @@
                     showToast("正在导出...");
 
                     try {
-                        const htmlContent = generateLeeSinHTML(textContent);
+                        const activeScaleBtn = document.querySelector('.scale-btn.active');
+                        const scaleFactor = parseInt(activeScaleBtn.dataset.scale);
+                        const htmlContent = generateLeeSinHTML(textContent, scaleFactor);
                         const fileName = "LeeSin_Export_" + new Date().getTime() + ".html";
 
                         if (window.cep && window.cep.fs) {
@@ -435,8 +559,14 @@
                 };
             }
 
-            function generateLeeSinHTML(textData) {
-                const escaped = textData.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            function generateLeeSinHTML(textData, scaleFactor = 1) {
+                // Convert position values based on scale factor
+                let processedData = textData;
+                if (scaleFactor > 1) {
+                    processedData = convertPositionValues(textData, scaleFactor);
+                }
+
+                const escaped = processedData.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
                 return `<!DOCTYPE html>
 <html>
@@ -446,99 +576,142 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
-            background: #1e1e1e;
-            color: #d4d4d4;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro', system-ui, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
             height: 100vh;
             overflow: hidden;
         }
         .header {
-            padding: 1rem 2rem;
-            background: #252526;
-            border-bottom: 1px solid #333;
-            color: #888;
-            font-size: 12px;
+            padding: 1.25rem 2rem;
+            background: linear-gradient(135deg, #161b22 0%, #1c2128 100%);
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
-        .header span { color: #569cd6; }
+        .header::before {
+            content: '⚡';
+            font-size: 18px;
+        }
+        .header-text {
+            color: #8b949e;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .header span {
+            color: #58a6ff;
+            font-weight: 600;
+        }
         .container {
             display: flex;
-            height: calc(100vh - 50px);
+            height: calc(100vh - 58px);
+            gap: 1px;
+            background: #30363d;
         }
         .left-panel {
             flex: 1;
             overflow-y: auto;
-            border-right: 1px solid #333;
+            background: #0d1117;
         }
         .right-panel {
             flex: 1;
             overflow-y: auto;
-            padding: 2rem;
+            padding: 1.5rem;
+            background: #0d1117;
         }
         .section-title {
-            color: #4ec9b0;
-            font-size: 14px;
+            color: #7ee787;
+            font-size: 13px;
+            font-weight: 600;
             margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #333;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #21262d;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
         pre {
-            background: #252526;
-            padding: 2rem;
+            background: #161b22;
+            padding: 1.5rem;
             margin: 0;
-            font-size: 13px;
-            line-height: 1.6;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 12px;
+            line-height: 1.7;
             white-space: pre-wrap;
             word-wrap: break-word;
-            color: #d4d4d4;
+            color: #c9d1d9;
         }
         table {
             width: 100%;
-            border-collapse: collapse;
-            background: #252526;
-            border-radius: 8px;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #161b22;
+            border-radius: 6px;
             overflow: hidden;
+            border: 1px solid #30363d;
         }
         th, td {
-            padding: 0.75rem;
+            padding: 0.875rem 1rem;
             text-align: left;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #21262d;
             font-size: 12px;
         }
         th {
-            background: #2d2d30;
-            color: #4ec9b0;
-            font-weight: bold;
+            background: #1c2128;
+            color: #7ee787;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             position: sticky;
             top: 0;
             z-index: 10;
+            border-bottom: 2px solid #30363d;
         }
-        tr:hover {
-            background: #2d2d30;
+        tbody tr {
+            transition: background 0.15s ease;
+        }
+        tbody tr:hover {
+            background: #1c2128;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
         }
         ::-webkit-scrollbar {
-            width: 10px;
+            width: 12px;
+            height: 12px;
         }
         ::-webkit-scrollbar-track {
-            background: #1e1e1e;
+            background: #0d1117;
         }
         ::-webkit-scrollbar-thumb {
-            background: #424242;
-            border-radius: 5px;
+            background: #30363d;
+            border-radius: 6px;
+            border: 3px solid #0d1117;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
         }
         .value-cell {
-            color: #ce9178;
+            color: #ffa657;
+            font-family: 'SF Mono', monospace;
         }
         .duration-cell {
-            color: #b5cea8;
+            color: #a5d6ff;
+            font-weight: 500;
         }
         .easing-cell {
-            color: #9cdcfe;
+            color: #d2a8ff;
             font-size: 11px;
+            font-family: 'SF Mono', monospace;
         }
     </style>
 </head>
 <body>
-    <div class="header">LeeSinMotion v4.0.0 Export · <span>双栏视图</span></div>
+    <div class="header">
+        <span class="header-text">LeeSinMotion v4.0.0 Export · <span>双栏视图</span></span>
+    </div>
     <div class="container">
         <div class="left-panel">
             <pre id="leesin-data">${escaped}</pre>
