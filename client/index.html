@@ -133,6 +133,13 @@
             user-select: auto;
         }
 
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            font-size: 11px;
+        }
+
         .scale-selector {
             display: flex;
             align-items: center;
@@ -270,7 +277,8 @@
         .icon-btn svg {
             width: 14px;
             height: 14px;
-            fill: currentColor;
+            stroke: currentColor;
+            fill: none;
         }
 
         ::-webkit-scrollbar {
@@ -338,22 +346,26 @@
 
         <div class="floating-actions">
             <button class="icon-btn" id="btn-export" title="Export HTML Timeline">
-                <svg viewBox="0 0 24 24">
-                    <path
-                        d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
                 导出
             </button>
             <button class="icon-btn" id="btn-copy" title="Copy to clipboard">
-                <svg viewBox="0 0 24 24">
-                    <path d="M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2z" />
-                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
                 复制
             </button>
             <button class="icon-btn" id="btn-clear" title="Clear console">
-                <svg viewBox="0 0 24 24">
-                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
                 </svg>
                 清空
             </button>
@@ -370,16 +382,17 @@
                 </div>
             </div>
         </div>
-        <div>
-            <button id="btn-web" class="footer-link" style="margin-right: 12px;">
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="footer-right">
+            <button id="btn-web" class="footer-link">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10" />
                     <path d="M2 12h20" />
                     <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
                 </svg>
                 leesin.peelg.com
             </button>
-            <button id="btn-version" class="footer-link version-badge">v3.5.4</button>
+            <span style="color: #333; margin: 0 8px;">•</span>
+            <span id="btn-version" class="footer-link" style="cursor: default; padding: 0;">v4.0.0</span>
         </div>
     </div>
 
@@ -488,7 +501,7 @@
                         line.includes('Bezier') ||
                         line.includes('Ease') ||
                         line.match(/^Layer\s+\d+/) ||
-                        line.match(/\[\d+-\d+\]/) ||
+                        line.match(/^-\s+.*\[\d+-\d+\]/) ||
                         line.includes('%')) {
                         result.push(line);
                         continue;
@@ -506,7 +519,10 @@
 
                     // Convert position values like "Y: 2791 → 1311px (1480px ↑)"
                     if (line.match(/[XY]:\s*\d+/)) {
-                        line = line.replace(/(\d+\.?\d*)px/g, (match, num) => {
+                        // First convert all numbers (with or without px)
+                        line = line.replace(/(\d+\.?\d*)(px)?/g, (match, num, unit) => {
+                            // Skip very small numbers (likely easing values)
+                            if (parseFloat(num) < 10 && !unit) return match;
                             const converted = parseFloat(num) / scaleFactor;
                             const formatted = converted % 1 === 0 ? converted.toString() : converted.toFixed(2);
                             return formatted + 'pt';
@@ -611,7 +627,7 @@
             background: #30363d;
         }
         .left-panel {
-            flex: 1;
+            flex: 0 0 35%;
             overflow-y: auto;
             background: #0d1117;
         }
@@ -696,6 +712,9 @@
         .value-cell {
             color: #ffa657;
             font-family: 'SF Mono', monospace;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            max-width: 300px;
         }
         .duration-cell {
             color: #a5d6ff;
@@ -762,8 +781,8 @@
                 }
 
                 if (line.match(/^-\\s+\\S/)) {
-                    const propMatch = line.match(/^-\\s+([^\\[]+)/);
-                    const property = propMatch ? propMatch[1].trim() : line.substring(2).trim();
+                    // Keep the full property name including [x-y] markers
+                    const property = line.substring(2).trim();
 
                     let value = '';
                     let startTime = '';
@@ -794,7 +813,7 @@
                             easing = trimmedDetail;
                         }
                         else {
-                            value += (value ? ' ' : '') + trimmedDetail;
+                            value += (value ? '\\n' : '') + trimmedDetail;
                         }
 
                         i++;
@@ -873,10 +892,11 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.version && isNewer(data.version, currentVer)) {
-                        btnVer.innerHTML = `<span style="color:#d97706">●</span> 升级 v${data.version}`;
-                        btnVer.style.color = "#fbbf24";
+                        btnVer.innerHTML = `<span style="color:#f59e0b">●</span> v${data.version}`;
+                        btnVer.style.color = "#f59e0b";
                         btnVer.style.fontWeight = "600";
-                        btnVer.onclick = () => csInterface.openURLInDefaultBrowser("https://github.com/peelfig/LeeSinMotion/releases/latest");
+                        btnVer.style.cursor = "pointer";
+                        btnVer.onclick = () => openURL("https://github.com/peelfig/LeeSinMotion/releases/latest");
                     }
                 }).catch(e => { });
         });

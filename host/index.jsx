@@ -379,19 +379,21 @@ $.global.getKeysSpec = function () {
                 });
             }
 
-            // Source restriction: Only first pair
-            var propSpec = getPropSpec({ prop: prop, keys: [keys[0], keys[1]] });
+            // Process all consecutive keyframe pairs
+            for (var k = 0; k < keys.length - 1; k++) {
+                var propSpec = getPropSpec({ prop: prop, keys: [keys[k], keys[k + 1]] });
 
-            var nameOverride = null;
-            if (prop.matchName.match(/Control/) != null) nameOverride = prop.propertyGroup(1).name;
+                var nameOverride = null;
+                if (prop.matchName.match(/Control/) != null) nameOverride = prop.propertyGroup(1).name;
 
-            spec.layers[spec.layers.length - 1].props.push({
-                name: nameOverride || prop.name,
-                value: propSpec.value,
-                duration: propSpec.duration,
-                ease: propSpec.ease,
-                delay: propSpec.delay
-            });
+                spec.layers[spec.layers.length - 1].props.push({
+                    name: (nameOverride || prop.name) + " [" + keys[k] + "-" + keys[k + 1] + "]",
+                    value: propSpec.value,
+                    duration: propSpec.duration,
+                    ease: propSpec.ease,
+                    delay: propSpec.delay
+                });
+            }
         }
 
         // Anchor Logic using stored layer reference - Much more robust
