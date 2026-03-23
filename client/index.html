@@ -409,61 +409,29 @@
 
                     showToast("正在导出...");
 
-                    // Get layer thumbnails from AE
-                    cs.evalScript('getLayerThumbnails()', (thumbnailsJSON) => {
-                        let thumbnails = {};
+                    try {
+                        const htmlContent = generateLeeSinHTML(textContent);
+                        const fileName = "LeeSin_Export_" + new Date().getTime() + ".html";
 
-                        try {
-                            if (thumbnailsJSON && thumbnailsJSON !== 'null') {
-                                const filePaths = JSON.parse(thumbnailsJSON);
-
-                                // Convert file paths to Base64
-                                if (window.cep && window.cep.fs) {
-                                    for (var layerName in filePaths) {
-                                        if (filePaths.hasOwnProperty(layerName)) {
-                                            var filePath = filePaths[layerName];
-                                            try {
-                                                var fileData = window.cep.fs.readFile(filePath, window.cep.encoding.Base64);
-                                                if (fileData.err === 0) {
-                                                    var ext = filePath.split('.').pop().toLowerCase();
-                                                    var mime = (ext === 'svg') ? 'image/svg+xml' : 'image/' + ext;
-                                                    thumbnails[layerName] = 'data:' + mime + ';base64,' + fileData.data;
-                                                }
-                                            } catch (err) {
-                                                console.warn("Failed to read: " + filePath);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (e) {
-                            console.warn("Failed to parse thumbnails:", e);
-                        }
-
-                        try {
-                            const htmlContent = generateLeeSinHTML(textContent, thumbnails);
-                            const fileName = "LeeSin_Export_" + new Date().getTime() + ".html";
-
-                            if (window.cep && window.cep.fs) {
-                                const result = window.cep.fs.showSaveDialogEx("导出动效标注", undefined, ["html"], fileName);
-                                if (result.data) {
-                                    const writeRes = window.cep.fs.writeFile(result.data, htmlContent);
-                                    if (writeRes.err !== 0) {
-                                        showToast("写入文件失败");
-                                    } else {
-                                        showToast("导出成功!");
-                                    }
+                        if (window.cep && window.cep.fs) {
+                            const result = window.cep.fs.showSaveDialogEx("导出动效标注", undefined, ["html"], fileName);
+                            if (result.data) {
+                                const writeRes = window.cep.fs.writeFile(result.data, htmlContent);
+                                if (writeRes.err !== 0) {
+                                    showToast("写入文件失败");
                                 } else {
-                                    showToast("已取消导出");
+                                    showToast("导出成功!");
                                 }
                             } else {
-                                showToast("环境不支持保存");
+                                showToast("已取消导出");
                             }
-                        } catch (e) {
-                            showToast("导出失败");
-                            console.error("Export error:", e);
+                        } else {
+                            showToast("环境不支持保存");
                         }
-                    });
+                    } catch (e) {
+                        showToast("导出失败");
+                        console.error("Export error:", e);
+                    }
                 };
             }
 
