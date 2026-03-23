@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="com.peel.leesin.motion.beta" ExtensionBundleVersion="4.0.0"
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.peel.leesin.motion" ExtensionBundleVersion="4.0.1"
 	ExtensionBundleName="LeeSinMotion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
-		<Extension Id="com.peel.leesin.motion.panel.beta" Version="4.0.0" />
+		<Extension Id="com.peel.leesin.motion" Version="4.0.1" />
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
 			<Host Name="AEFT" Version="[13.0,99.9]" />
 		</HostList>
 		<LocaleList>
-			<Locale Code="All" />
+			<Locale Name="All" />
 		</LocaleList>
 		<RequiredRuntimeList>
 			<RequiredRuntime Name="CSXS" Version="7.0" />
 		</RequiredRuntimeList>
 	</ExecutionEnvironment>
 	<DispatchInfoList>
-		<Extension Id="com.peel.leesin.motion.panel.beta">
+		<Extension Id="com.peel.leesin.motion">
 			<DispatchInfo>
 				<Resources>
 					<MainPath>./client/index.html</MainPath>
-					<ScriptPath>./host/index.jsx</ScriptPath>
 					<CEFCommandLine>
 						<Parameter>--enable-nodejs</Parameter>
+						<Parameter>--mixed-context</Parameter>
 					</CEFCommandLine>
 				</Resources>
 				<Lifecycle>
@@ -30,13 +30,14 @@
 				</Lifecycle>
 				<UI>
 					<Type>Panel</Type>
-					<Menu>LeeSinMotion (Beta)</Menu>
+					<Menu>LeeSinMotion</Menu>
 					<Geometry>
 						<Size>
 							<Height>600</Height>
 							<Width>300</Width>
 						</Size>
 					</Geometry>
+					<Icons />
 				</UI>
 			</DispatchInfo>
 		</Extension>
