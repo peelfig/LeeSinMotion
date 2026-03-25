@@ -10,7 +10,8 @@
       "Bash(mdfind -name LeeSinMotion)",
       "Bash(defaults write:*)",
       "Bash(git stash:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(zip:*)"
     ]
   }
 }
