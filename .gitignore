@@ -4,6 +4,10 @@ node_modules
 /documentation/docs/.vuepress/dist
 /build/
 /dist/
+/release/
+
+# Local packaging output
+LeeSinMotion_v*.zip
 
 # local env files
 .env.local
