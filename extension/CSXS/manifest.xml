@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="com.peel.leesin.motion.panel" ExtensionBundleVersion="4.0.1" ExtensionBundleName="LeeSinMotion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.bepeel.leesin.motion" ExtensionBundleVersion="4.0.1" ExtensionBundleName="LeeSinMotion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <ExtensionList>
-        <Extension Id="com.peel.leesin.motion.panel" Version="4.0.1" />
+        <Extension Id="com.bepeel.leesin.motion" Version="4.0.1" />
     </ExtensionList>
     <ExecutionEnvironment>
         <HostList>
@@ -15,7 +15,7 @@
         </RequiredRuntimeList>
     </ExecutionEnvironment>
     <DispatchInfoList>
-        <Extension Id="com.peel.leesin.motion.panel">
+        <Extension Id="com.bepeel.leesin.motion">
             <DispatchInfo>
                 <Resources>
                     <MainPath>./client/index.html</MainPath>

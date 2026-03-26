@@ -1,0 +1,105 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version (for example: 4.0.2)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Validate version format
+        run: |
+          python3 - <<'PY'
+          import os, re
+          version = os.environ['VERSION']
+          if not re.fullmatch(r'\d+\.\d+\.\d+', version):
+              raise SystemExit(f'Invalid version format: {version}')
+          PY
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update version.json for release build
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib
+          path = pathlib.Path('version.json')
+          data = json.loads(path.read_text())
+          data['version'] = os.environ['VERSION']
+          data['updated'] = True
+          path.write_text(json.dumps(data, indent=4, ensure_ascii=False) + '\n')
+          PY
+
+      - name: Build release payload
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          STAGE_DIR=$(./scripts/build_extension.sh main)
+          mkdir -p release
+          cp -R "$STAGE_DIR" release/
+          cp "docs/安装说明_Installation.txt" release/
+
+      - name: Create zip archive
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          cd release
+          zip -r "../LeeSinMotion_v${VERSION}.zip" .
+
+      - name: Create tag
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          git tag "v${VERSION}"
+          git push origin "v${VERSION}"
+
+      - name: Create GitHub Release
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: LeeSinMotion v${{ env.VERSION }}
+          body: |
+            ## LeeSinMotion v${{ env.VERSION }}
+
+            自动构建的 CEP 安装包，压缩包内包含：
+            - `com.bepeel.leesin.motion/`
+            - `安装说明_Installation.txt`
+          files: |
+            LeeSinMotion_v${{ env.VERSION }}.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Skip duplicate release
+        if: steps.check_tag.outputs.exists == 'true'
+        run: echo "Tag v${VERSION} already exists, skipping release."

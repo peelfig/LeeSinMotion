@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ExtensionList>
-    <Extension Id="com.peel.leesin.motion.panel">
+    <Extension Id="com.bepeel.leesin.motion">
         <HostList>
             <Host Name="AEFT" Port="8088" />
         </HostList>

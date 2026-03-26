@@ -5,7 +5,6 @@
   <h3>Design to Code, The Missing Bridge.</h3>
   <p>补齐动画交付断层。一键将您的 After Effects 资产转化为像素级精准的可视化开发文档。</p>
   <p>
-    <a href="https://leesin.peelg.com/" target="_blank">官方网站 Website</a> | 
     <a href="https://github.com/peelfig/LeeSinMotion/releases" target="_blank">下载安装包 Download</a>
   </p>
 </div>
@@ -29,10 +28,10 @@
 > **LeeSinMotion** 是高性能 **CEP 扩展插件**，而非传统 `.jsx` 脚本。
 
 ### 1. 下载并提取
-从 [Releases](https://github.com/peelfig/LeeSinMotion/releases) 下载最新压缩包，提取 `LeeSinMotion` 文件夹至本地。
+从 [Releases](https://github.com/peelfig/LeeSinMotion/releases) 下载最新压缩包，解压后会得到 `com.bepeel.leesin.motion` 文件夹和 `安装说明_Installation.txt`。
 
 ### 2. 挂载至原生扩展目录
-将整个文件夹拷贝入下列系统级路径：
+将整个 `com.bepeel.leesin.motion` 文件夹拷贝入下列系统级路径：
 
 *   **macOS**: `/Library/Application Support/Adobe/CEP/extensions/`
 *   **Windows**: `C:\Program Files (x86)\Common Files\Adobe\CEP\extensions\`
@@ -67,7 +66,7 @@ LeeSinMotion/
 ├── extension/    # 🧩 插件核心代码 (Client/Host/Manifest)
 ├── website/      # 🌐 现代官网源码 (HTML/CSS/Vanilla JS)
 ├── docs/         # 📖 品牌资产与安装说明
-├── scripts/      # 🛠 自动化发布与同步脚本
+├── scripts/      # 🛠 发布辅助与本地开发脚本
 └── README.md     # 🏠 项目入口文档
 ```
 

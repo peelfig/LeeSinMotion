@@ -11,13 +11,13 @@ TARGET=$1
 CEP_DIR="/Library/Application Support/Adobe/CEP/extensions"
 
 if [ "$TARGET" == "main" ]; then
-    DEST="$CEP_DIR/com.peel.leesin.motion"
-    ID="com.peel.leesin.motion"
+    DEST="$CEP_DIR/com.bepeel.leesin.motion"
+    ID="com.bepeel.leesin.motion"
     MENU="LeeSinMotion"
     COLOR="🔵 正式版"
 elif [ "$TARGET" == "dev" ]; then
-    DEST="$CEP_DIR/com.peel.leesin.motion.dev"
-    ID="com.peel.leesin.motion.dev"
+    DEST="$CEP_DIR/com.bepeel.leesin.motion.dev"
+    ID="com.bepeel.leesin.motion.dev"
     MENU="LeeSinMotion (Dev)"
     COLOR="🟡 开发版"
 else
@@ -43,7 +43,7 @@ sudo chown -R $(whoami):staff "$DEST"
 sudo chmod -R 755 "$DEST"
 
 # 4. 清理缓存
-rm -rf ~/Library/Caches/CSXS/com.peel.leesin.motion*
+rm -rf ~/Library/Caches/CSXS/com.bepeel.leesin.motion*
 
 echo "✅ $COLOR 同步完成！"
 echo "🚀 路径: $DEST"

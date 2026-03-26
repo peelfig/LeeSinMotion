@@ -1,6 +1,6 @@
 {
   "name": "LeeSinMotion",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Motion specs from After Effects",
   "main": "index.js",
   "scripts": {
@@ -18,5 +18,5 @@
   "bugs": {
     "url": "https://github.com/peelfig/LeeSinMotion/issues"
   },
-  "homepage": "https://google.github.io/inspectorspacetime/"
+  "homepage": "https://github.com/peelfig/LeeSinMotion/releases"
 }
