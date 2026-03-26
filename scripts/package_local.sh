@@ -7,6 +7,15 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
+# 检查版本号一致性
+echo "🔍 检查版本号一致性..."
+if ! ./scripts/check_version.sh; then
+    echo ""
+    echo "❌ 版本号检查失败，请先修复版本号不一致的问题"
+    exit 1
+fi
+echo ""
+
 # 读取当前版本号
 VERSION=$(python3 -c "import json, pathlib; print(json.loads(pathlib.Path('version.json').read_text())['version'])")
 

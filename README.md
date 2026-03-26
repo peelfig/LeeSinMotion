@@ -68,7 +68,25 @@ LeeSinMotion/
 ├── website/      # 🌐 现代官网源码 (HTML/CSS/Vanilla JS)
 ├── docs/         # 📖 品牌资产与安装说明
 ├── scripts/      # 🛠 发布辅助与本地开发脚本
+│   ├── check_version.sh    # 检查版本号一致性
+│   ├── package_local.sh    # 本地打包测试
+│   ├── build_extension.sh  # 构建扩展
+│   └── sync_to_cep.sh      # 同步到本地 CEP 目录
 └── README.md     # 🏠 项目入口文档
+```
+
+## 🛠 开发脚本 (Development Scripts)
+
+```bash
+# 检查版本号一致性
+./scripts/check_version.sh
+
+# 本地打包测试（模拟 GitHub Actions）
+./scripts/package_local.sh
+
+# 同步到本地 CEP 目录进行测试
+./scripts/sync_to_cep.sh dev   # 开发版
+./scripts/sync_to_cep.sh main  # 正式版
 ```
 
 ## ❤️ 致敬 (Credits)
