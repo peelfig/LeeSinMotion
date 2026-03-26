@@ -11,7 +11,12 @@
       "Bash(defaults write:*)",
       "Bash(git stash:*)",
       "Bash(chmod:*)",
-      "Bash(zip:*)"
+      "Bash(zip:*)",
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(git fetch:*)",
+      "Bash(unzip:*)",
+      "Bash(git:*)"
     ]
   }
 }

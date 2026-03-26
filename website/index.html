@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeeSinMotion - Design to Code, 补齐动画交付的最后一环。</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23000000'/><path d='M8 24 C14 24, 18 8, 24 8' stroke='white' stroke-width='3' stroke-linecap='round' fill='none'/></svg>">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #000000;
+            --bg-surface: #0a0a0a;
+            --bg-card: #050505;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --border-hover: rgba(255, 255, 255, 0.2);
+            /* 首选 Inter 字体处理英文字母和数字，Fallback 到 PingFang SC 处理中文字体展现 */
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            --transition: all 0.2s ease-out;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Basic Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            letter-spacing: -0.01em; /* 中文更友好的轻微字宽缩进 */
+        }
+
+        a {
+            color: var(--text-main);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        /* _________________ AMBIENT BACKGROUND _________________ */
+        body::before { /* 三维空间感网格 */
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 120vh;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: center top;
+            pointer-events: none;
+            z-index: -2;
+            mask-image: radial-gradient(ellipse at top center, rgba(0,0,0,1) 10%, rgba(0,0,0,0) 70%);
+            -webkit-mask-image: radial-gradient(ellipse at top center, rgba(0,0,0,1) 10%, rgba(0,0,0,0) 70%);
+        }
+
+        .ambient-light {
+            position: absolute;
+            top: -150px; left: 50%;
+            transform: translateX(-50%);
+            width: 100vw; height: 700px;
+            background: 
+                radial-gradient(circle at 35% 20%, rgba(59, 130, 246, 0.12) 0%, rgba(0,0,0,0) 50%),
+                radial-gradient(circle at 65% 30%, rgba(139, 92, 246, 0.12) 0%, rgba(0,0,0,0) 50%);
+            pointer-events: none;
+            z-index: -1;
+            filter: blur(80px);
+        }
+        /* _______________________________________________________ */
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 6%;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 100;
+            border-bottom: 1px solid transparent;
+            transition: var(--transition);
+        }
+
+        header.scrolled {
+            padding: 1.2rem 6%;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-text {
+            display: flex;
+            align-items: center;
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-leesin {
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .brand-motion {
+            font-weight: 300;
+            color: #888888;
+            margin-left: 1px;
+        }
+
+        .logo-box svg {
+            width: 26px;
+            height: 26px;
+            color: #ffffff;
+            transition: transform 0.4s var(--ease-out-expo);
+        }
+
+        .logo-box:hover svg {
+            transform: scale(1.1) rotate(6deg);
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            font-size: 0.95rem; /* 对中文导航进行细微字号放大 */
+            font-weight: 500;
+            transition: color 0.15s;
+        }
+
+        nav a:hover {
+            color: var(--text-main);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 5%;
+        }
+
+        /* _________________ HERO SECTION _________________ */
+        .hero {
+            padding: 22vh 0 15vh;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 1.1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            letter-spacing: 0.02em;
+        }
+
+        .hero-badge span {
+            color: var(--text-main);
+            margin-right: 8px;
+            font-weight: 600;
+        }
+
+        .hero h1 {
+            font-size: clamp(3.2rem, 8vw, 6.2rem);
+            font-weight: 700;
+            line-height: 1.1;
+            /* 汉字的间距不能过分压缩，-0.015em 足够体现张力 */
+            letter-spacing: -0.015em; 
+            margin-bottom: 1.5rem;
+            background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.45) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            max-width: 900px;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto 3rem;
+            font-weight: 400;
+            line-height: 1.7; /* 中文需要较大的行高保证阅读透气感 */
+            letter-spacing: 0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1.2rem;
+            justify-content: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.85rem 1.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out-expo);
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #ffffff;
+            box-shadow: 0 4px 14px rgba(255,255,255,0.1);
+        }
+
+        .btn-primary:hover {
+            transform: scale(0.98);
+            box-shadow: 0 2px 5px rgba(255,255,255,0.05);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); /* 顶部极其微弱的内高光 */
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--border-hover);
+        }
+        
+        .btn svg {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        /* _________________ FEATURES SECTION _________________ */
+        .features {
+            padding: 100px 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 20px rgba(0,0,0,0.5);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: var(--bg-surface);
+        }
+
+        .feature-icon {
+            margin-bottom: 2rem;
+            color: var(--text-main);
+        }
+
+        .feature-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            stroke-width: 1.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0.8;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: var(--text-main);
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        /* _________________ INSTALL SECTION _________________ */
+        .install-section {
+            padding: 100px 0;
+            border-top: 1px solid var(--border-color);
+            background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 1rem;
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        .install-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .tabs-header {
+            display: flex;
+            background: #020202;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 1rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-family: inherit;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: inset 0 -1px 0 #ffffff;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2.5rem 3rem;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .step {
+            margin-bottom: 2rem;
+        }
+        
+        .step p {
+            font-size: 1.05rem;
+            color: var(--text-main);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .step-num {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 20px;
+            height: 20px;
+            background: var(--text-main);
+            border-radius: 50%;
+            font-size: 0.75rem;
+            margin-right: 12px;
+            color: #000;
+            font-weight: 600;
+        }
+
+        /* 终端极简代码块 */
+        .code-block {
+            background: #000000;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-left: 32px;
+        }
+
+        code {
+            display: block;
+            padding: 1rem 1.2rem;
+            color: #d1d5da;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            line-height: 1.5;
+            white-space: pre;
+        }
+
+        .code-comment { color: #6a737d; }
+        .code-path { color: #85e89d; }
+        .code-cmd { color: #79b8ff; }
+
+        .install-note {
+            margin-top: 1rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-left: 32px;
+        }
+
+        /* _________________ FOOTER _________________ */
+        footer {
+            padding: 3rem 0;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .footer-logo {
+            margin-bottom: 0.6rem;
+            opacity: 0.5;
+        }
+        
+        .footer-logo svg {
+            width: 26px; height: 26px; color: var(--text-muted); transition: color 0.3s;
+        }
+        .footer-logo:hover svg { color: var(--text-main); }
+
+        /* _________________ ANIMATIONS _________________ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+            will-change: opacity, transform;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .delay-1 { transition-delay: 0.05s; }
+        .delay-2 { transition-delay: 0.1s; }
+        .delay-3 { transition-delay: 0.15s; }
+        .delay-4 { transition-delay: 0.2s; }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.8rem; }
+            header { padding: 1rem 5%; }
+            nav { display: none; }
+            .btn-group { flex-direction: column; }
+            .code-block { margin-left: 0; }
+            .step-num { margin-right: 8px; }
+            .install-note { margin-left: 0; }
+            .tab-content { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Minimal Environment -->
+    <div class="ambient-light"></div>
+
+    <header id="header">
+        <a href="#" class="logo-box">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="logo-gradient" x1="4" y1="20" x2="20" y2="4" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#ffffff"/>
+                        <stop offset="100%" stop-color="#666666"/>
+                    </linearGradient>
+                </defs>
+                <!-- Handles & Lines -->
+                <path d="M4 20 L11 20" stroke="currentColor" stroke-opacity="0.15" stroke-width="1.5" stroke-dasharray="2 2" stroke-linecap="round"/>
+                <circle cx="11" cy="20" r="1.5" fill="currentColor" fill-opacity="0.25"/>
+                <path d="M20 4 L13 4" stroke="currentColor" stroke-opacity="0.15" stroke-width="1.5" stroke-dasharray="2 2" stroke-linecap="round"/>
+                <circle cx="13" cy="4" r="1.5" fill="currentColor" fill-opacity="0.25"/>
+                <!-- End Anchors -->
+                <circle cx="4" cy="20" r="2" fill="url(#logo-gradient)"/>
+                <circle cx="20" cy="4" r="2" fill="url(#logo-gradient)"/>
+                <!-- Primary Cubic Bezier Spline -->
+                <path d="M4 20 C11 20, 13 4, 20 4" stroke="url(#logo-gradient)" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <span class="brand-text">
+                <strong class="brand-leesin">LeeSin</strong><span class="brand-motion">Motion</span>
+            </span>
+        </a>
+        <nav>
+            <a href="#features">核心能力</a>
+            <a href="#install">极速配置</a>
+            <a href="https://github.com/peelfig/LeeSinMotion" target="_blank">GitHub</a>
+        </nav>
+    </header>
+
+    <section class="hero container">
+        <div class="hero-badge reveal delay-1">
+            <span>Stable</span> 全新原生底座重构
+        </div>
+        
+        <h1 class="reveal delay-2">Design to Code<br>补齐动画交付断层</h1>
+        
+        <p class="reveal delay-3">
+            彻底告别截图与眼力对标。一键将您的 After Effects 资产转化为像素级精准的可视化开发文档，构建毫无摩擦的协作工作流。
+        </p>
+        
+        <div class="btn-group reveal delay-4">
+            <a href="https://github.com/peelfig/LeeSinMotion/releases" target="_blank" class="btn btn-primary">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                下载最新版本
+            </a>
+            <a href="#install" class="btn btn-secondary">安装指南</a>
+        </div>
+    </section>
+
+    <!-- Content Sections -->
+    <section class="features container" id="features">
+        <div class="features-grid">
+            <div class="feature-card reveal delay-1">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                        <circle cx="12" cy="4" r="2"></circle>
+                        <circle cx="18" cy="10" r="2"></circle>
+                        <circle cx="6" cy="14" r="2"></circle>
+                    </svg>
+                </div>
+                <h3>可视化参数反推</h3>
+                <p>一键生成独立的 HTML 交互文档。囊括精准的三次贝塞尔曲线参数、毫秒级时长标记以及高度可视化的关键帧时序布局。</p>
+            </div>
+            
+            <div class="feature-card reveal delay-2">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                </div>
+                <h3>Chromium 内核驱动</h3>
+                <p>底层基于强大的 Chromium 架构进行深度重构。解析速度较上一代引擎飙升超 10 倍，提供如丝般顺滑的原生前端渲染级体验。</p>
+            </div>
+            
+            <div class="feature-card reveal delay-3">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                </div>
+                <h3>工业级别的稳态兼容</h3>
+                <p>完美适配从 After Effects CC 2014 跨越至 2025 全系引擎。无缝支持 macOS 与 Windows 阵营平台，构建极端环境下的稳固支持。</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="install-section" id="install">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2 class="section-title">极速安装生态</h2>
+                <p class="section-desc">仅需三步，即可在不到一分钟内搭建属于您的现代动画追踪流。</p>
+            </div>
+            
+            <div class="install-container reveal delay-1">
+                <div class="tabs-header">
+                    <button class="tab-btn active" onclick="showTab('mac')">macOS 架构</button>
+                    <button class="tab-btn" onclick="showTab('win')">Windows 架构</button>
+                </div>
+
+                <div id="mac" class="tab-content active">
+                    <div class="step">
+                        <p><span class="step-num">1</span> 下载并解压系统归档包。</p>
+                        <p class="install-note">请提取 <strong>LeeSinMotion 安装包</strong> 内的文件至本地。</p>
+                    </div>
+                    
+                    <div class="step">
+                        <p><span class="step-num">2</span> 挂载扩展至 Adobe 原生目录。</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># 将解压得到的整个文件夹拷贝入下列系统级路径：</span>
+<span class="code-path">/Library/Application Support/Adobe/CEP/extensions/</span></code>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <p><span class="step-num">3</span> 一键授权：允许运行本地扩展 (首次安装必做)。</p>
+                        <p class="install-note">拷贝并运行下列复合指令一次性激活 2015-2025 全版本支持。运行后重启 AE 即可生效：</p>
+                        <div class="code-block">
+                            <code><span class="code-cmd">for i in {6..14}; do defaults write com.adobe.CSXS.$i PlayerDebugMode 1; done</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="win" class="tab-content">
+                    <div class="step">
+                        <p><span class="step-num">1</span> 下载并解压系统归档包。</p>
+                        <p class="install-note">请提取 <strong>LeeSinMotion 安装包</strong> 内的文件至本地。</p>
+                    </div>
+                    
+                    <div class="step">
+                        <p><span class="step-num">2</span> 挂载扩展至 Adobe 公共级目录。</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># 将解压得到的整个文件夹拷贝入下列系统级路径：</span>
+<span class="code-path">C:\Program Files (x86)\Common Files\Adobe\CEP\extensions\</span></code>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <p><span class="step-num">3</span> 一键提权：允许运行本地扩展 (首次安装必做)。</p>
+                        <p class="install-note">请以<strong>管理员身份</strong>运行 CMD 或 PowerShell，粘贴并执行下列一键提权指令：</p>
+                        <div class="code-block">
+                            <code><span class="code-cmd">for /L %i in (6,1,14) do reg add "HKEY_CURRENT_USER\Software\Adobe\CSXS.%i" /v PlayerDebugMode /t REG_SZ /d 1 /f</span></code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="footer-logo-gradient" x1="4" y1="20" x2="20" y2="4" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#aaaaaa"/>
+                            <stop offset="100%" stop-color="#444444"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M4 20 L11 20" stroke="currentColor" stroke-opacity="0.1" stroke-width="1.5" stroke-dasharray="2 2" stroke-linecap="round"/>
+                    <circle cx="11" cy="20" r="1.5" fill="currentColor" fill-opacity="0.2"/>
+                    <path d="M20 4 L13 4" stroke="currentColor" stroke-opacity="0.1" stroke-width="1.5" stroke-dasharray="2 2" stroke-linecap="round"/>
+                    <circle cx="13" cy="4" r="1.5" fill="currentColor" fill-opacity="0.2"/>
+                    <circle cx="4" cy="20" r="2" fill="url(#footer-logo-gradient)"/>
+                    <circle cx="20" cy="4" r="2" fill="url(#footer-logo-gradient)"/>
+                    <path d="M4 20 C11 20, 13 4, 20 4" stroke="url(#footer-logo-gradient)" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <p>&copy; 2026 LeeSinMotion. 严格基于 Apache 2.0 协议构建开源生态。</p>
+        </div>
+    </footer>
+
+    <!-- INTERACTION LOGIC -->
+    <script>
+        // Minimal Tab Logic
+        function showTab(platform) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(platform).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    const headerOffset = 80;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Header Border on Scroll
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth Fade-Up Reveal Observer
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Trigger animation exactly once
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { root: null, rootMargin: '-20px', threshold: 0.1 });
+
+        // Force a slight delay to ensure fonts drop in correctly before revealing
+        setTimeout(() => {
+            document.querySelectorAll('.reveal').forEach(element => {
+                revealObserver.observe(element);
+            });
+        }, 50);
+        
+    </script>
+</body>
+</html>
