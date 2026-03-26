@@ -872,7 +872,7 @@
                 }
             });
 
-            // Version Checking
+            // Version Checking with Enhanced UI
             const btnVer = document.getElementById('btn-version');
             btnVer.textContent = "v" + currentVer;
 
@@ -887,17 +887,49 @@
                 return false;
             };
 
+            // Show update notification
+            const showUpdateNotification = (newVersion) => {
+                btnVer.innerHTML = `<span style="color:#f59e0b">●</span> v${newVersion}`;
+                btnVer.style.color = "#f59e0b";
+                btnVer.style.fontWeight = "600";
+                btnVer.style.cursor = "pointer";
+                btnVer.title = `新版本可用！点击下载 v${newVersion}`;
+
+                btnVer.onclick = () => {
+                    const downloadUrl = `https://github.com/peelfig/LeeSinMotion/releases/latest`;
+                    openURL(downloadUrl);
+
+                    // Show installation reminder
+                    setTimeout(() => {
+                        if (confirm(`即将打开下载页面。\n\n下载后请：\n1. 解压 ZIP 文件\n2. 替换旧的 com.bepeel.leesin.motion 文件夹\n3. 重启 After Effects\n\n是否继续？`)) {
+                            // User confirmed, URL already opened
+                        }
+                    }, 100);
+                };
+
+                // Show toast notification
+                const updateToast = document.createElement('div');
+                updateToast.className = 'toast';
+                updateToast.style.cssText = 'position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); background: #f59e0b; color: #000; padding: 12px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; z-index: 10000; box-shadow: 0 4px 12px rgba(245,158,11,0.3);';
+                updateToast.textContent = `🎉 新版本 v${newVersion} 可用！点击右下角版本号下载`;
+                document.body.appendChild(updateToast);
+
+                setTimeout(() => {
+                    updateToast.style.opacity = '0';
+                    updateToast.style.transition = 'opacity 0.3s';
+                    setTimeout(() => updateToast.remove(), 300);
+                }, 5000);
+            };
+
             fetch("https://raw.githubusercontent.com/peelfig/LeeSinMotion/main/version.json")
                 .then(res => res.json())
                 .then(data => {
                     if (data.version && isNewer(data.version, currentVer)) {
-                        btnVer.innerHTML = `<span style="color:#f59e0b">●</span> v${data.version}`;
-                        btnVer.style.color = "#f59e0b";
-                        btnVer.style.fontWeight = "600";
-                        btnVer.style.cursor = "pointer";
-                        btnVer.onclick = () => openURL("https://github.com/peelfig/LeeSinMotion/releases/latest");
+                        showUpdateNotification(data.version);
                     }
-                }).catch(e => { });
+                }).catch(e => {
+                    console.log('Version check failed:', e);
+                });
         });
 
         /* --- Robust Logic --- */
