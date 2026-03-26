@@ -5,6 +5,7 @@
   <h3>Design to Code, The Missing Bridge.</h3>
   <p>补齐动画交付断层。一键将您的 After Effects 资产转化为像素级精准的可视化开发文档。</p>
   <p>
+    <a href="https://leesin.bepeel.com/" target="_blank">官网 Website</a> |
     <a href="https://github.com/peelfig/LeeSinMotion/releases" target="_blank">下载安装包 Download</a>
   </p>
 </div>
