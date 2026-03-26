@@ -7,6 +7,10 @@ on:
         description: 'Release version (e.g., 4.0.2)'
         required: true
         type: string
+      changelog:
+        description: 'What changed in this version? (e.g., 修复了XX问题, 新增了XX功能)'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -81,18 +85,48 @@ jobs:
           git tag "v${VERSION}"
           git push origin "v${VERSION}"
 
+      - name: Generate changelog
+        if: steps.check_tag.outputs.exists == 'false'
+        id: changelog
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            echo "commits<<EOF" >> "$GITHUB_OUTPUT"
+            echo "首次发布" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          else
+            echo "commits<<EOF" >> "$GITHUB_OUTPUT"
+            git log ${LAST_TAG}..HEAD --pretty=format:"- %s" >> "$GITHUB_OUTPUT"
+            echo "" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create GitHub Release
         if: steps.check_tag.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.VERSION }}
-          name: LeeSinMotion v${{ env.VERSION }}
+          name: v${{ env.VERSION }}
           body: |
-            ## LeeSinMotion v${{ env.VERSION }}
+            ## 📦 LeeSinMotion v${{ env.VERSION }}
 
-            自动构建的 CEP 安装包，压缩包内包含：
-            - `com.bepeel.leesin.motion/`
-            - `安装说明_Installation.txt`
+            ${{ inputs.changelog && format('### ✨ 更新内容{0}{1}{0}', '
+            ', inputs.changelog) || '' }}
+            ### 📝 提交历史
+            ${{ steps.changelog.outputs.commits }}
+
+            ---
+
+            ### 💾 安装包内容
+            - `com.bepeel.leesin.motion/` - CEP 扩展插件
+            - `安装说明_Installation.txt` - 安装指南
+
+            ### 📥 安装方法
+            1. 下载 `LeeSinMotion_v${{ env.VERSION }}.zip`
+            2. 解压后将 `com.bepeel.leesin.motion` 文件夹复制到：
+               - **macOS**: `/Library/Application Support/Adobe/CEP/extensions/`
+               - **Windows**: `C:\Program Files (x86)\Common Files\Adobe\CEP\extensions\`
+            3. 重启 After Effects
           files: |
             LeeSinMotion_v${{ env.VERSION }}.zip
           draft: false
