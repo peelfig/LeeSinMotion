@@ -73,6 +73,17 @@ jobs:
           cp -R "$STAGE_DIR" release/
           cp "docs/安装说明_Installation.txt" release/
 
+          # Verify package contents
+          echo "=== Release package contents ==="
+          ls -la release/
+
+          # Remove any unwanted files
+          rm -rf release/extension
+          rm -rf release/.DS_Store
+
+          echo "=== Final package contents ==="
+          ls -la release/
+
       - name: Create zip archive
         if: steps.check_tag.outputs.exists == 'false'
         run: |
