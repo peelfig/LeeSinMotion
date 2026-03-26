@@ -445,6 +445,12 @@
             color: var(--text-muted);
             font-size: 0.9rem;
             margin-left: 32px;
+            word-break: keep-all;
+            overflow-wrap: break-word;
+        }
+
+        .install-note strong {
+            white-space: nowrap;
         }
 
         /* _________________ FOOTER _________________ */
@@ -590,11 +596,13 @@
 
             .install-note {
                 margin-left: 0;
-                font-size: 0.85rem;
+                font-size: 0.8rem;
+                line-height: 1.5;
             }
 
             .step p {
-                font-size: 1rem;
+                font-size: 0.95rem;
+                line-height: 1.5;
             }
 
             code {
@@ -631,6 +639,11 @@
                 font-size: 1.75rem;
             }
 
+            .section-desc {
+                font-size: 0.9rem;
+                padding: 0 1rem;
+            }
+
             .feature-card {
                 padding: 1.5rem 1.2rem;
             }
@@ -646,6 +659,14 @@
 
             .tab-content {
                 padding: 1.2rem 1rem;
+            }
+
+            .install-note {
+                font-size: 0.75rem;
+            }
+
+            .step p {
+                font-size: 0.9rem;
             }
         }
     </style>
