@@ -9,6 +9,9 @@ node_modules
 # Local packaging output
 LeeSinMotion_v*.zip
 
+# Claude Code local settings
+.claude/
+
 # local env files
 .env.local
 .env.*.local
