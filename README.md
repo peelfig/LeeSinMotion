@@ -90,8 +90,11 @@ LeeSinMotion/
 ```
 
 ## ❤️ 致敬 (Credits)
-Original concept by [Adam Plouff](http://www.battleaxe.co/) (Inspector Spacetime).  
-v3.0 - v4.0 重型重构：**peelfig**.
+
+原始概念来自 [Adam Plouff](http://www.battleaxe.co/) 和 Google Motion Design 团队的 [Inspector Spacetime](https://github.com/google/inspectorspacetime)。
+
+v3.0 - v4.0 重型重构：**peelfig**
 
 ## 📄 协议 (License)
-Apache 2.0 License.
+
+Apache 2.0 License - 继承自原项目 [Inspector Spacetime](https://github.com/google/inspectorspacetime)

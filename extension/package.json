@@ -1,7 +1,7 @@
 {
   "name": "LeeSinMotion",
   "version": "4.0.1",
-  "description": "Motion specs from After Effects",
+  "description": "Motion specs from After Effects - Forked from Inspector Spacetime",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/peelfig/LeeSinMotion.git"
   },
-  "author": "Adam Plouff",
+  "author": "Adam Plouff (original), peelfig (v3.0-v4.0 rewrite)",
   "license": "Apache-2.0",
   "dependencies": {
     "types-for-adobe": "github:pravdomil/types-for-adobe"
@@ -18,5 +18,5 @@
   "bugs": {
     "url": "https://github.com/peelfig/LeeSinMotion/issues"
   },
-  "homepage": "https://github.com/peelfig/LeeSinMotion/releases"
+  "homepage": "https://leesin.bepeel.com/"
 }
