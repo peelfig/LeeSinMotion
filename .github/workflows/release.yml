@@ -118,6 +118,7 @@ jobs:
             ---
 
             ### 💾 安装包内容
+            自动构建的 CEP 安装包，压缩包内包含：
             - `com.bepeel.leesin.motion/` - CEP 扩展插件
             - `安装说明_Installation.txt` - 安装指南
 
@@ -127,6 +128,10 @@ jobs:
                - **macOS**: `/Library/Application Support/Adobe/CEP/extensions/`
                - **Windows**: `C:\Program Files (x86)\Common Files\Adobe\CEP\extensions\`
             3. 重启 After Effects
+
+            ### 🌐 相关链接
+            - 官网：https://leesin.bepeel.com/
+            - 文档：https://github.com/peelfig/LeeSinMotion/blob/main/README.md
           files: |
             LeeSinMotion_v${{ env.VERSION }}.zip
           draft: false
