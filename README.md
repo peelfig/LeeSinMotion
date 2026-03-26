@@ -1,93 +1,79 @@
-# LeeSinMotion v4.0
+# **LeeSin**Motion
 
 <div align="center">
-  <img src="docs/images/LeeSinMotion_logo.png" width="120" alt="LeeSinMotion Logo" />
+  <img src="docs/images/brand_logo.svg" width="128" alt="LeeSinMotion Logo" />
   <h3>Design to Code, The Missing Bridge.</h3>
-  <p>Make animation handoff painless with precise data and visual timeline specifications.</p>
+  <p>补齐动画交付断层。一键将您的 After Effects 资产转化为像素级精准的可视化开发文档。</p>
   <p>
-    <a href="https://leesin.peelg.com/" target="_blank">官网 Website</a> | 
-    <a href="https://github.com/peelfig/LeeSinMotion/releases" target="_blank">Download v4.0</a>
+    <a href="https://leesin.peelg.com/" target="_blank">官方网站 Website</a> | 
+    <a href="https://github.com/peelfig/LeeSinMotion/releases" target="_blank">下载安装包 Download</a>
   </p>
 </div>
 
 ---
 
-**LeeSinMotion 4.0** 是一次彻头彻尾的重构。它从一个简单的 ScriptUI 脚本进化为了高性能的原生 **CEP 扩展**。最重要的是，它带来了革命性的 **HTML 可视化时间轴导出**功能，彻底终结了“开发看不懂动画文档”的时代。
-
-**LeeSinMotion 4.0** is a complete rewrite, evolved from a simple script into a high-performance **CEP Extension**. It introduces the game-changing **HTML Visual Timeline Export**, bridging the gap between motion design and engineering.
+**LeeSinMotion** 是一款面向现代工作流的 After Effects 到代码 (Design to Code) 的底层桥梁。它彻底终结了“开发看不懂动画参数，设计对不齐缓动曲线”的协作痛点。
 
 ## ✨ 核心特性 (Features)
 
-### 📊 HTML 可视化导出 (HTML Timeline Export)
-一键生成独立的 `timeline.html` 文件。包含像素级精准的**可视化时间轴**、毫秒级时长标记、延迟时间和贝塞尔缓动曲线。
-Generate a standalone `timeline.html` with one click. Features a pixel-perfect visual timeline, precise duration markers (ms), delays, and bezier easing curves.
+*   📊 **HTML 可视化导出**: 生成独立的 `timeline.html` 交互文档。包含毫秒级频率、延迟及完整的 **Cubic-Bezier** 贝塞尔曲线参数。
+*   ⚡️ **Chromium 内核驱动**: 基于高性能原生 CEP 扩展架构，解析速度对比旧版脚本提升 **10 倍** 以上。
+*   🖥 **全版本兼容**: 完美适配 **After Effects CC 2014 - 2025** 全系列，支持 macOS 与 Windows 双平台。
+*   🎨 **工业级 UI**: 极致简约的高对比度界面，专为追求生产力的高级设计师打造。
 
-### ⚡️ 原生 CEP 架构 (Native CEP)
-基于 Chromium 内核重构，解析速度提升 **10 倍**。拥有现代化的 UI 界面和流畅的交互体验。
-Rebuilt on Chromium. 10x faster parsing speed. Modern UI and smooth interactions.
-
-### 🛠 完美兼容 (Full Compatibility)
-支持 **After Effects CC 2014 - 2025** 全系列版本。无论是 Mac 还是 Windows，都能稳定运行。
-Supports After Effects CC 2014 through 2025 (Mac & Win).
+---
 
 ## 🚀 安装指南 (Installation)
 
-> ⚠️ **注意**: v4.0 是扩展插件，不是脚本文件。请不要放入 Scripts 文件夹。
-> **Note**: v4.0 is an Extension, not a script. Do not put it in the Scripts folder.
+> [!IMPORTANT]
+> **LeeSinMotion** 是高性能 **CEP 扩展插件**，而非传统 `.jsx` 脚本。
 
-### 1. 下载 (Download)
-前往 [Releases](https://github.com/peelfig/LeeSinMotion/releases) 下载最新的 `LeeSinMotion_v4.0.0.zip`。
+### 1. 下载并提取
+从 [Releases](https://github.com/peelfig/LeeSinMotion/releases) 下载最新压缩包，提取 `LeeSinMotion` 文件夹至本地。
 
-### 2. 安装 (Install)
-解压并将 `com.peel.leesin.motion` 文件夹移动到以下目录：
-Unzip and move the `com.peel.leesin.motion` folder to:
+### 2. 挂载至原生扩展目录
+将整个文件夹拷贝入下列系统级路径：
 
-- **macOS**:  
-  `/Library/Application Support/Adobe/CEP/extensions/`
-- **Windows**:  
-  `C:\Program Files (x86)\Common Files\Adobe\CEP\extensions\`
+*   **macOS**: `/Library/Application Support/Adobe/CEP/extensions/`
+*   **Windows**: `C:\Program Files (x86)\Common Files\Adobe\CEP\extensions\`
 
-### 3. 配置 (Config)
-为了加载第三方插件，需要开启调试模式 (Debug Mode)：
-Open Terminal (Mac) or Registry (Win) to enable PlayerDebugMode.
+### 3. 一键提权 (首次安装必做)
+由于是本地构建，需开启 Adobe 的调试模式以读取未签名插件。
 
-**Mac Terminal:**
+#### **macOS (Terminal):**
+拷贝并运行下列复合指令，一次性激活 2015-2025 全版本支持：
 ```bash
-defaults write com.adobe.CSXS.11 PlayerDebugMode 1
+for i in {6..14}; do defaults write com.adobe.CSXS.$i PlayerDebugMode 1; done
 ```
-*(如果您使用旧版 AE，可能需要将 11 改为 10, 9, 8 等)*
 
-**Windows Registry:**
-Add String `PlayerDebugMode` = `1` to `HKEY_CURRENT_USER\Software\Adobe\CSXS.11`
+#### **Windows (CMD):**
+以**管理员身份**运行终端，执行下列指令：
+```cmd
+for /L %i in (6,1,14) do reg add "HKEY_CURRENT_USER\Software\Adobe\CSXS.%i" /v PlayerDebugMode /t REG_SZ /d 1 /f
+```
 
-### 4. 运行 (Run)
-重启 After Effects，在菜单中打开：
-Restart AE, and find it under:
-**窗口 (Window) > 扩展 (Extensions) > LeeSinMotion**
+---
 
 ## 📖 使用指南 (Usage)
 
-1. **Scan (扫描)**: 选中关键帧，点击 `获取参数`。
-2. **Copy (复制)**: 点击对应属性即可复制 CSS/贝塞尔参数。
-3. **Export (导出)**: 点击底部的 `Export Timeline HTML`，生成交互文档发给开发。
+1.  **扫描关键帧**: 在 AE 中选中图层及其关键帧，点击 `获取参数 (Get Parameters)`。
+2.  **导出交互文档**: 点击底部的 `Export Timeline HTML`，生成交互文档发给开发。
+3.  **开发对接**: 开发人员打开网页即可直接复制 CSS 或缓动参数。
 
 ## 📂 项目结构 (Project Structure)
 
 ```text
 LeeSinMotion/
-├── extension/                # 🧩 插件核心代码 (client, host, CSXS, package.json)
-├── website/                  # 🌐 插件官网/介绍网站 (VuePress 源码)
-├── docs/                     # 📖 文档中心 (贡献指南、发布记录、安装说明、图片)
-├── scripts/                  # 🛠 自动化脚本 (release.sh, convert_html.py)
-├── version.json              # 🔢 全局版本控制 (保留在根目录以便脚本读取)
-├── README.md                 # 🏠 项目主文档
-├── LICENSE.md                # ⚖️ 开源协议
-└── LeeSinMotion_v4.0.0.zip   # 📦 最新稳定版安装包 (保持在根目录)
+├── extension/    # 🧩 插件核心代码 (Client/Host/Manifest)
+├── website/      # 🌐 现代官网源码 (HTML/CSS/Vanilla JS)
+├── docs/         # 📖 品牌资产与安装说明
+├── scripts/      # 🛠 自动化发布与同步脚本
+└── README.md     # 🏠 项目入口文档
 ```
 
 ## ❤️ 致敬 (Credits)
-Original concept by [Adam Plouff](http://www.battleaxe.co/) (Inspector Spacetime).
-v3.0 - v4.0 rewrite by **peelfig**.
+Original concept by [Adam Plouff](http://www.battleaxe.co/) (Inspector Spacetime).  
+v3.0 - v4.0 重型重构：**peelfig**.
 
 ## 📄 协议 (License)
 Apache 2.0 License.
